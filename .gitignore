@@ -1,0 +1,5 @@
+.venv
+.python-version
+mise.toml
+*/.mypy_cache
+*/__pycache__

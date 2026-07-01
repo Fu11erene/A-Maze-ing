@@ -11,7 +11,8 @@ def arg_parse() -> None:
     try:
         args = parser.parse_args()
         print([entry.strip()
-              for entry in args.filename.readlines() if entry[0] != "#"])
+              for entry in args.filename.readlines()
+              if entry[0] != "#" and entry[0] != " "])
     except Exception as e:
         print(f"Error occurred: {e}")
         sys.exit(1)

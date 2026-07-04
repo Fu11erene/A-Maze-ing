@@ -1,11 +1,12 @@
 import argparse
 import sys
-from pydantic import BaseModel, validator, ValidationError, conint
+from pydantic import BaseModel, field_validator, ValidationError, Field
+from pydantic_core.core_schema import ValidationInfo
 
 
 class Config(BaseModel):
-    width: conint(ge=0)
-    height: conint(ge=0)
+    width: int = Field(ge=0)
+    height: int = Field(ge=0)
     entry: tuple[int, int]
     exit: tuple[int, int]
     output_file: str
@@ -15,38 +16,44 @@ class Config(BaseModel):
     def is_valid_coordinate(cls, x: int, y: int, width: int, height: int) -> bool:
         return (x >= 0 and x <= width - 1) and (y >= 0 and y <= height - 1)
 
-    @validator("width")
+    @field_validator("width", mode="before")
+    @classmethod
     def width_validate(cls, width: str) -> int:
         try:
             return int(width)
         except ValueError:
-            ValueError()
+            raise ValueError()
 
-    @validator("height")
+    @field_validator("height", mode="before")
+    @classmethod
     def height_validate(cls, height: str) -> int:
         try:
             return int(height)
         except ValueError:
             ValueError()
 
-    @validator("entry", pre=True)
-    def entry_validate(cls, entry: str, values: dict) -> tuple[int, int]:
+    @field_validator("entry", mode="before")
+    @classmethod
+    def entry_validate(cls, entry: str, info: ValidationInfo) -> tuple[int, int]:
         try:
-            x, y = (int(point) for point in entry.split(","))
+            x, y = (int(point)
+                    for point in entry.split(",") if point == point.strip())
 
-            if cls.is_valid_coordinate(x, y, values["width"], values["height"]):
+            if cls.is_valid_coordinate(x, y, info.data.get("width"), info.data.get("height")):
                 return (x, y)
             else:
                 raise ValueError()
         except ValueError:
             raise ValueError()
 
-    @validator("exit", pre=True)
-    def exit_validate(cls, exit: str, values: dict) -> tuple[int, int]:
+    @field_validator("exit", mode="before")
+    @classmethod
+    def exit_validate(cls, exit: str, info: ValidationInfo) -> tuple[int, int]:
         try:
-            x, y = (int(point) for point in exit.split(","))
+            x, y = (int(point)
+                    for point in exit.split(",") if point == point.strip())
 
-            if cls.is_valid_coordinate(x, y, values["width"], values["height"]) and (x, y) != values["entry"]:
+            if cls.is_valid_coordinate(x, y, info.data.get("width"), info.data.get("height")) and (x, y) != info.data.get("entry"):
                 return (x, y)
             else:
                 raise ValueError()
@@ -77,6 +84,9 @@ def arg_parse() -> None:
         config = Config(**entry_dict)
         print(entry_dict)
         print(config)
-    except (Exception, ValidationError) as e:
+    except ValidationError as e:
+        print(f"Invalid parameter: {e}")
+        sys.exit(1)
+    except Exception as e:
         print(f"Error occurred: {e}")
         sys.exit(1)

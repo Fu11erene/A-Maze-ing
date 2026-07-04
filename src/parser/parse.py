@@ -16,7 +16,7 @@ class Config(BaseModel):
     entry: tuple[int, int]
     exit: tuple[int, int]
     output_file: str
-    perfect: bool
+    perfect: bool = Field(default=False)
     seed: Optional[int] = Field(default=randint(0, 100))
 
     @classmethod
@@ -121,7 +121,6 @@ def arg_parse() -> Config:
                       entry.split("=")[0] == entry.split("=")[0].upper() or
                       entry.split("=")[0] == "seed"]
         entry_dict = convert_dict(entry_list)
-        print(entry_dict)
         config = Config(**entry_dict)
         return config
     except KeyAlreadyExistError as e:

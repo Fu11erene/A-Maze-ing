@@ -1,5 +1,7 @@
 import argparse
 from sys import exit
+from typing import Optional
+from random import randint
 from pydantic import BaseModel, field_validator, ValidationError, Field
 from pydantic_core.core_schema import ValidationInfo
 
@@ -15,6 +17,7 @@ class Config(BaseModel):
     exit: tuple[int, int]
     output_file: str
     perfect: bool
+    seed: Optional[int] = Field(default=randint(0, 100))
 
     @classmethod
     def assign_coordinate(cls, point: str) -> tuple[int, int]:
@@ -115,8 +118,10 @@ def arg_parse() -> Config:
                       for entry in args.filename.readlines()
                       if entry[0] != "#" and entry[0] != " "
                       and entry[0] != "\n" and
-                      entry.split("=")[0] == entry.split("=")[0].upper()]
+                      entry.split("=")[0] == entry.split("=")[0].upper() or
+                      entry.split("=")[0] == "seed"]
         entry_dict = convert_dict(entry_list)
+        print(entry_dict)
         config = Config(**entry_dict)
         return config
     except KeyAlreadyExistError as e:

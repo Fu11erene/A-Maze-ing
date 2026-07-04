@@ -2,7 +2,7 @@ install:
 	uv sync
 
 run:
-	python3 a_maze_ing.py config.txt
+	uv run a_maze_ing.py config.txt
 
 clean:
 	find . -type d \( -name ".mypy_cache" -o -name "__pycache__" \) -prune -exec rm -rf {} +

@@ -1,3 +1,3 @@
-from .parse import arg_parse
+from .parse import arg_parse, Config
 
-__all__ = ["arg_parse"]
+__all__ = ["arg_parse", "Config"]

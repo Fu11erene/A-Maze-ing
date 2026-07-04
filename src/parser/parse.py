@@ -113,7 +113,9 @@ def arg_parse() -> Config:
         args = parser.parse_args()
         entry_list = [entry.strip().lower()
                       for entry in args.filename.readlines()
-                      if entry[0] != "#" and entry[0] != " " and entry[0] != "\n"]
+                      if entry[0] != "#" and entry[0] != " "
+                      and entry[0] != "\n" and
+                      entry.split("=")[0] == entry.split("=")[0].upper()]
         entry_dict = convert_dict(entry_list)
         config = Config(**entry_dict)
         return config

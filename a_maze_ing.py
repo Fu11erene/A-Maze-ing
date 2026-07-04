@@ -4,7 +4,8 @@ from src.parser import arg_parse
 
 
 def main() -> None:
-    arg_parse()
+    config = arg_parse()
+    print(config)
 
 
 if __name__ == "__main__":

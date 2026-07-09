@@ -90,7 +90,7 @@ class Config(BaseModel):
                 return (x, y)
             else:
                 raise ValueError()
-        except ValueError as e:
+        except ValueError:
             raise ValueError("Invalid EXIT")
 
 
@@ -125,11 +125,11 @@ def arg_parse() -> Config:
         return config
     except KeyAlreadyExistError as e:
         print(f"Error: Too many {e}")
-        sys.exit(1)
+        exit(1)
     except ValidationError as e:
         error = e.errors()[0]
         if error["type"] == "missing":
-            print(f"Error: Missing parameter: {error["loc"][0].upper()}")
+            print(f"Error: Missing parameter: {error['loc'][0].upper()}")
             exit(1)
         print(e.errors()[0]["msg"])
         exit(1)

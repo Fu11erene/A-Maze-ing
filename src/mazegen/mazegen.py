@@ -68,12 +68,10 @@ class MazeGenerator:
     def _take_down_stick(cls, x: int, y: int, board: Board, direction: int) -> None:
         """
         棒を実際に倒す処理
-        """
-        # 倒す向きの候補を現在何行目であるのかによって判断する
 
-        #   1行目なら上下左右
-        #   2行目...最後なら下と左右、ただし四方を壁に囲われて使わないマスができないようにする
-        #
+        - 1行目なら上下左右
+        - 2行目以降なら下と左右、ただし四方を壁に囲われて使わないマスができないようにする
+        """
         if direction == Direction.up:
             print("up")
             board[y - 1][x] = True
@@ -121,4 +119,5 @@ class MazeGenerator:
         """
 
         board = self._generate_board()
-        MazeGenerator._print_board(board)
+        # TODO: 消す
+        # MazeGenerator._print_board(board)

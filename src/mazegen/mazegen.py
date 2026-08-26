@@ -76,10 +76,10 @@ class MazeGenerator:
         #
         if direction == Direction.up:
             print("up")
-            board[y-1][x] = True
+            board[y - 1][x] = True
         elif direction == Direction.down:
             print("down")
-            board[y+1][x] = True
+            board[y + 1][x] = True
         elif direction == Direction.left:
             print("left")
             board[y][x - 1] = True
@@ -101,11 +101,6 @@ class MazeGenerator:
                 elif y % 2 == 0 and x % 2 == 0:
                     board[y][x] = True
                     self._decide_stick(x, y, board)
-
-                # else:
-                #     board[y][x] = False
-
-        # 四方が壁で囲われていないかチェックする
 
         return board
 

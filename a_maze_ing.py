@@ -8,7 +8,8 @@ def main() -> None:
     config = arg_parse()
     print(config)
     generator = MazeGenerator(config=config)
-    generator.generate_maze_data()
+    result = generator.generate_maze_data()
+    generator.print_board(result)
 
 
 if __name__ == "__main__":

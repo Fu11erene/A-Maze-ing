@@ -73,16 +73,12 @@ class MazeGenerator:
         - 2行目以降なら下と左右、ただし四方を壁に囲われて使わないマスができないようにする
         """
         if direction == Direction.up:
-            print("up")
             board[y - 1][x] = True
         elif direction == Direction.down:
-            print("down")
             board[y + 1][x] = True
         elif direction == Direction.left:
-            print("left")
             board[y][x - 1] = True
         elif direction == Direction.right:
-            print("right")
             board[y][x + 1] = True
         else:
             raise ValueError("Unknown direction: got", direction)
@@ -103,7 +99,7 @@ class MazeGenerator:
         return board
 
     @classmethod
-    def _print_board(cls, board: Board):
+    def print_board(cls, board: Board):
         for row in board:
             for cell in row:
                 if cell is True:
@@ -113,11 +109,11 @@ class MazeGenerator:
 
             print()
 
-    def generate_maze_data(self):
+    def generate_maze_data(self) -> Board:
         """
         迷路を生成する
         """
 
-        board = self._generate_board()
+        return self._generate_board()
         # TODO: 消す
-        # MazeGenerator._print_board(board)
+        # MazeGenerator.print_board(board)

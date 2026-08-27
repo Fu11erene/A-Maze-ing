@@ -1,135 +1,90 @@
-import argparse
-from sys import exit
-from typing import Optional
+from argparse import ArgumentParser
+from enum import Enum
 from random import randint
-from pydantic import BaseModel, field_validator, ValidationError, Field
-from pydantic_core.core_schema import ValidationInfo
+from sys import exit
+from typing import Optional, Self, Any
+from pydantic import BaseModel, field_validator, model_validator, ValidationError, Field
 
 
-class KeyAlreadyExistError(Exception):
-    pass
+ConfigOption = [
+    "WIDTH", "HEIGHT", "ENTRY", "EXIT", "PERFECT", "OUTPUT_FILE", "seed"
+]
 
 
 class Config(BaseModel):
-    width: int = Field(ge=0)
-    height: int = Field(ge=0)
+    width: int = Field(ge=0, le=100, strict=True)
+    height: int = Field(ge=0, le=100, strict=True)
     entry: tuple[int, int]
     exit: tuple[int, int]
     output_file: str
     perfect: bool = Field(default=False)
     seed: Optional[int] = Field(default=randint(0, 100))
 
+    @field_validator('width', 'height', mode='before')
     @classmethod
-    def assign_coordinate(cls, point: str) -> tuple[int, int]:
+    def parse_size(cls, value: str) -> int:
         try:
-            x, y = (int(p)
-                    for p in point.split(",") if point == point.strip())
+            return int(value)
+        except ValueError:
+            raise ValueError()
+
+    @field_validator('entry', 'exit', mode='before')
+    @classmethod
+    def parse_coordinate(cls, value: str) -> tuple[str, str]:
+        try:
+            x, y = (int(p) for p in value.split(","))
             return (x, y)
         except ValueError:
             raise ValueError()
 
+    @field_validator('perfect', mode="before")
     @classmethod
-    def entry_info_validate(cls, info: ValidationInfo) -> tuple[int, int]:
-        width = info.data.get("width")
-        height = info.data.get("height")
-        for param in [width, height]:
-            if param is None:
-                raise ValueError()
-        return (width, height)
+    def is_valid_perfect(cls, value: str) -> str:
+        if value != "True" and value != "False":
+            raise ValueError()
+        return value
 
-    @classmethod
-    def exit_info_validate(cls, info: ValidationInfo) -> tuple[int, int, tuple[int, int]]:
-        width = info.data.get("width")
-        height = info.data.get("height")
-        entry = info.data.get("entry")
-        for param in [width, height, entry]:
-            if param is None:
-                raise ValueError()
-        return (width, height, entry)
+    @model_validator(mode="after")
+    def is_valid_entry(self) -> Self:
+        entry_x, entry_y = self.entry
+        if (entry_x >= 0 and entry_x <= self.width - 1) and (entry_y >= 0 and entry_y <= self.height - 1):
+            return self
+        raise ValueError()
 
-    @classmethod
-    def is_valid_coordinate(cls, x: int, y: int, width: int, height: int) -> bool:
-        return (x >= 0 and x <= width - 1) and (y >= 0 and y <= height - 1)
-
-    @field_validator("width", mode="before")
-    @classmethod
-    def width_validate(cls, width: str) -> int:
-        try:
-            return int(width)
-        except ValueError:
-            raise ValueError("Invalid WIDTH")
-
-    @field_validator("height", mode="before")
-    @classmethod
-    def height_validate(cls, height: str) -> int:
-        try:
-            return int(height)
-        except ValueError:
-            ValueError("Invalid HEIGHT")
-
-    @field_validator("entry", mode="before")
-    @classmethod
-    def entry_validate(cls, entry: str, info: ValidationInfo) -> tuple[int, int]:
-        try:
-            x, y = cls.assign_coordinate(entry)
-            width, height = cls.entry_info_validate(info)
-            if cls.is_valid_coordinate(x, y, width, height):
-                return (x, y)
-            else:
-                raise ValueError()
-        except ValueError:
-            raise ValueError("Invalid ENTRY")
-
-    @field_validator("exit", mode="before")
-    @classmethod
-    def exit_validate(cls, exit: str, info: ValidationInfo) -> tuple[int, int]:
-        try:
-            x, y = cls.assign_coordinate(exit)
-            width, height, entry = cls.exit_info_validate(info)
-            if cls.is_valid_coordinate(x, y, width, height) and (x, y) != entry:
-                return (x, y)
-            else:
-                raise ValueError()
-        except ValueError:
-            raise ValueError("Invalid EXIT")
-
-
-def convert_dict(entry_list: list[str]) -> dict[str, str]:
-    entry_dict = {}
-    for entry in entry_list:
-        if entry == "\n":
-            continue
-        key, value = entry.split("=")
-        if key in entry_dict.keys():
-            raise KeyAlreadyExistError(key.upper())
-        entry_dict.update({key: value})
-    return entry_dict
+    @model_validator(mode="after")
+    def is_valid_exit(self) -> Self:
+        exit_x, exit_y = self.exit
+        if (exit_x >= 0 and exit_x <= self.width - 1) and (exit_y >= 0 and exit_y <= self.height - 1) and self.entry != self.exit:
+            return self
+        raise ValueError()
 
 
 def arg_parse() -> Config:
-
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument("filename", type=open, help="設定ファイル")
-
     try:
+        parser = ArgumentParser()
+        parser.add_argument("filename", type=open, help="設定ファイル")
         args = parser.parse_args()
-        entry_list = [entry.strip().lower()
-                      for entry in args.filename.readlines()
-                      if entry[0] != "#" and entry[0] != " "
-                      and entry[0] != "\n" and
-                      entry.split("=")[0] == entry.split("=")[0].upper() or
-                      entry.split("=")[0] == "seed"]
-        entry_dict = convert_dict(entry_list)
+        entry_dict = {}
+
+        for entry in args.filename.readlines():
+            if entry.startswith("#"):
+                continue
+            elif entry.startswith(" ") and len(entry) > 0:
+                raise ValueError()
+            elif entry.startswith("\n"):
+                continue
+            else:
+                key, value = entry.split("=")
+                if key not in ConfigOption:
+                    raise ValueError()
+            if key.lower() in entry_dict.keys():
+                raise ValueError()
+            entry_dict[key.lower()] = value.strip()
         config = Config(**entry_dict)
         return config
-    except KeyAlreadyExistError as e:
-        print(f"Error: Too many {e}")
+    except (ValidationError, ValueError) as e:
+        print("Invalid Input")
         exit(1)
-    except ValidationError as e:
-        error = e.errors()[0]
-        if error["type"] == "missing":
-            print(f"Error: Missing parameter: {error['loc'][0].upper()}")
-            exit(1)
-        print(e.errors()[0]["msg"])
+    except FileNotFoundError as e:
+        print(e)
         exit(1)

@@ -1,5 +1,6 @@
 import random
 from ..parser import Config
+from enum import Enum
 
 type Board = list[list[bool]]
 """
@@ -7,7 +8,7 @@ type Board = list[list[bool]]
 """
 
 
-class Direction[Enum]:
+class Direction(Enum):
     up = 1
     right = 2
     down = 4
@@ -36,13 +37,12 @@ class MazeGenerator:
         どちらの向きに棒を倒すのか判断する
         """
         print("x:", x, "y:", y)
-        possible_dir: dict[int, bool] = {
+        possible_dir: dict[Direction, bool] = {
             Direction.up: False,
             Direction.right: True,
             Direction.down: True,
             Direction.left: True,
         }
-        # up, down, left, right = False, True, True, True
         if y == 2:
             possible_dir[Direction.up] = True
         if board[y][x + 1]:
@@ -64,8 +64,8 @@ class MazeGenerator:
                 else:
                     di += 1
 
-    @classmethod
-    def _take_down_stick(cls, x: int, y: int, board: Board, direction: int) -> None:
+    @staticmethod
+    def _take_down_stick(x: int, y: int, board: Board, direction: Direction) -> None:
         """
         棒を実際に倒す処理
 
@@ -98,8 +98,8 @@ class MazeGenerator:
 
         return board
 
-    @classmethod
-    def print_board(cls, board: Board):
+    @staticmethod
+    def print_board(board: Board) -> None:
         for row in board:
             for cell in row:
                 if cell is True:

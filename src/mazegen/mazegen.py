@@ -1,6 +1,7 @@
-import random
 from ..parser import Config
+import random
 from enum import Enum
+from typing import Optional
 
 type Board = list[list[bool]]
 """
@@ -19,7 +20,7 @@ class Direction(Enum):
 方向を決定する型
 """
 
-# 4方向についてのenumを生成する
+# 4方向についてのenumを生成するs
 
 
 class MazeGenerator:
@@ -29,6 +30,7 @@ class MazeGenerator:
 
     def __init__(self, config: Config) -> None:
         self.config = config
+        self.board: Optional[Board] = None
         random.seed(config.seed)
 
     @classmethod
@@ -64,7 +66,8 @@ class MazeGenerator:
                     di += 1
 
     @staticmethod
-    def _take_down_stick(x: int, y: int, board: Board, direction: Direction) -> None:
+    def _take_down_stick(x: int, y: int, board: Board, direction: Direction
+                         ) -> None:
         """
         棒を実際に倒す処理
 
@@ -97,9 +100,10 @@ class MazeGenerator:
 
         return board
 
-    @staticmethod
-    def print_board(board: Board) -> None:
-        for row in board:
+    def print_board(self) -> None:
+        if self.board is None:
+            raise Exception("The Board has not been initalized yet.")
+        for row in self.board:
             for cell in row:
                 if cell is True:
                     print("██", end="")
@@ -108,11 +112,38 @@ class MazeGenerator:
 
             print()
 
-    def generate_maze_data(self) -> Board:
+    def _generate_outstr(self) -> str:
+        if self.board is None:
+            raise Exception("Cannot generate outstr: The Board has not been initalized yet.")
+        result = ""
+        WIDTH = self.config.width * 2 + 1
+        HEIGHT = self.config.height * 2 + 1
+        for y in range(1, HEIGHT, 2):
+            for x in range(1, WIDTH, 2):
+                # current_cell = self.board[row][col]
+                north = self.board[y-1][x]
+                east = self.board[y][x+1]
+                south = self.board[y+1][x]
+                west = self.board[y][x-1]
+                current_digit = "%x" % (
+                    west * 8 + south * 4 + east * 2 + north)
+                result += current_digit
+            result += "\n"
+        return result
+
+    def generate_output(self) -> None:
+        outstr = self._generate_outstr()
+        ent_x, ent_y = self.config.entry
+        ext_x, ext_y = self.config.exit
+        with open("maze.txt", mode="w") as f:
+            f.write(outstr + "\n")
+            f.write(f"{ent_x},{ent_y}")
+            f.write("\n")
+            f.write(f"{ext_x},{ext_y}")
+            f.write("\n")
+
+    def generate_data(self) -> None:
         """
         迷路を生成する
         """
-
-        return self._generate_board()
-        # TODO: 消す
-        # MazeGenerator.print_board(board)
+        self.board = self._generate_board()

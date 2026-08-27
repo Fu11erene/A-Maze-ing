@@ -1,10 +1,9 @@
-import argparse
+from argparse import ArgumentParser
+from enum import Enum
+from random import randint
 from sys import exit
 from typing import Optional, Self, Any
-from random import randint
-from enum import Enum, auto
 from pydantic import BaseModel, field_validator, model_validator, ValidationError, Field
-from pydantic_core.core_schema import ValidationInfo
 
 
 ConfigOption = [
@@ -62,7 +61,7 @@ class Config(BaseModel):
 
 def arg_parse() -> Config:
     try:
-        parser = argparse.ArgumentParser()
+        parser = ArgumentParser()
         parser.add_argument("filename", type=open, help="設定ファイル")
         args = parser.parse_args()
         entry_dict = {}
@@ -71,7 +70,7 @@ def arg_parse() -> Config:
             if entry.startswith("#"):
                 continue
             elif entry.startswith(" ") and len(entry) > 0:
-                ValueError()
+                raise ValueError()
             elif entry.startswith("\n"):
                 continue
             else:

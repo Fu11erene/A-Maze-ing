@@ -36,7 +36,6 @@ class MazeGenerator:
         """
         どちらの向きに棒を倒すのか判断する
         """
-        print("x:", x, "y:", y)
         possible_dir: dict[Direction, bool] = {
             Direction.up: False,
             Direction.right: True,

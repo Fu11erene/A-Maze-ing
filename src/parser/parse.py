@@ -8,27 +8,42 @@ from pydantic_core.core_schema import ValidationInfo
 
 
 ConfigOption = [
-    "WIDTH", "HEIGHT", "ENTRY", "PERFECT", "OUTPUT_FILE ", "seed"
+    "WIDTH", "HEIGHT", "ENTRY", "EXIT", "PERFECT", "OUTPUT_FILE", "seed"
 ]
 
 
 class Config(BaseModel):
-    width: int = Field(ge=0)
-    height: int = Field(ge=0)
+    width: int = Field(ge=0, le=100, strict=True)
+    height: int = Field(ge=0, le=100, strict=True)
     entry: tuple[int, int]
     exit: tuple[int, int]
     output_file: str
     perfect: bool = Field(default=False)
     seed: Optional[int] = Field(default=randint(0, 100))
 
+    @field_validator('width', 'height', mode='before')
+    @classmethod
+    def parse_size(cls, value: str) -> int:
+        try:
+            return int(value)
+        except ValueError:
+            raise ValueError()
+
     @field_validator('entry', 'exit', mode='before')
     @classmethod
-    def parse_coordinate(cls, value: Any) -> tuple[Any, Any]:
+    def parse_coordinate(cls, value: str) -> tuple[str, str]:
         try:
             x, y = (int(p) for p in value.split(","))
             return (x, y)
         except ValueError:
-            raise ValueError(f"Invalid coordinate: {value}")
+            raise ValueError()
+
+    @field_validator('perfect', mode="before")
+    @classmethod
+    def is_valid_perfect(cls, value: str) -> str:
+        if value != "True" and value != "False":
+            raise ValueError()
+        return value
 
     @model_validator(mode="after")
     def is_valid_entry(self) -> Self:
@@ -46,28 +61,31 @@ class Config(BaseModel):
 
 
 def arg_parse() -> Config:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("filename", type=open, help="設定ファイル")
-
     try:
+        parser = argparse.ArgumentParser()
+        parser.add_argument("filename", type=open, help="設定ファイル")
         args = parser.parse_args()
         entry_dict = {}
+
         for entry in args.filename.readlines():
             if entry.startswith("#"):
                 continue
-            if entry.startswith(" "):
+            elif entry.startswith(" ") and len(entry) > 0:
+                ValueError()
+            elif entry.startswith("\n"):
                 continue
-            if entry.startswith("\n"):
-                continue
-            key, value = entry.split("=")
-            if key not in ConfigOption:
-                ValueError("Invalid Key")
+            else:
+                key, value = entry.split("=")
+                if key not in ConfigOption:
+                    raise ValueError()
+            if key.lower() in entry_dict.keys():
+                raise ValueError()
             entry_dict[key.lower()] = value.strip()
         config = Config(**entry_dict)
         return config
-    except ValueError as e:
-        print(f"Error: {e}")
+    except (ValidationError, ValueError) as e:
+        print("Invalid Input")
         exit(1)
-    except ValidationError as e:
+    except FileNotFoundError as e:
         print(e)
         exit(1)

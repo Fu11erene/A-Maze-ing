@@ -85,6 +85,42 @@ class MazeGenerator:
         else:
             raise ValueError("Unknown direction: got", direction)
 
+    def _dead_ends(self, board: Board) -> list[tuple[int, int]]:
+        """
+        行き止まりになっているセル(開口部が1つしかないセル)の座標一覧を返す
+        """
+        WIDTH = self.config.width * 2 + 1
+        HEIGHT = self.config.height * 2 + 1
+        dead_ends = []
+        for y in range(1, HEIGHT, 2):
+            for x in range(1, WIDTH, 2):
+                walls = (board[y - 1][x], board[y][x + 1],
+                         board[y + 1][x], board[y][x - 1])
+                if walls.count(False) == 1:
+                    dead_ends.append((x, y))
+        return dead_ends
+
+    def _braid(self, board: Board) -> None:
+        """
+        行き止まりのセルについて、外周に面していない壁を1つ取り除いて
+        隣接するセルと繋げることで、迷路からループを作り行き止まりをなくす
+        """
+        WIDTH = self.config.width * 2 + 1
+        HEIGHT = self.config.height * 2 + 1
+        for x, y in self._dead_ends(board):
+            candidates = []
+            for wx, wy, nx, ny in (
+                (x, y - 1, x, y - 2),
+                (x + 1, y, x + 2, y),
+                (x, y + 1, x, y + 2),
+                (x - 1, y, x - 2, y),
+            ):
+                if (1 <= nx <= WIDTH - 2 and 1 <= ny <= HEIGHT - 2 and board[wy][wx]):
+                    candidates.append((wx, wy))
+            if candidates:
+                wx, wy = random.choice(candidates)
+                board[wy][wx] = False
+
     def _generate_board(self) -> Board:
         WIDTH = self.config.width * 2 + 1
         HEIGHT = self.config.height * 2 + 1
@@ -114,7 +150,8 @@ class MazeGenerator:
 
     def _generate_outstr(self) -> str:
         if self.board is None:
-            raise Exception("Cannot generate outstr: The Board has not been initalized yet.")
+            raise Exception(
+                "Cannot generate outstr: The Board has not been initalized yet.")
         result = ""
         WIDTH = self.config.width * 2 + 1
         HEIGHT = self.config.height * 2 + 1
@@ -147,3 +184,5 @@ class MazeGenerator:
         迷路を生成する
         """
         self.board = self._generate_board()
+        if not self.config.perfect:
+            self._braid(self.board)

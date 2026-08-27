@@ -172,7 +172,7 @@ class MazeGenerator:
         outstr = self._generate_outstr()
         ent_x, ent_y = self.config.entry
         ext_x, ext_y = self.config.exit
-        with open("maze.txt", mode="w") as f:
+        with open(self.config.output_file, mode="w") as f:
             f.write(outstr + "\n")
             f.write(f"{ent_x},{ent_y}")
             f.write("\n")

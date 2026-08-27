@@ -102,9 +102,9 @@ class MazeGenerator:
         for row in board:
             for cell in row:
                 if cell is True:
-                    print("0", end="")
+                    print("██", end="")
                 else:
-                    print(" ", end="")
+                    print("  ", end="")
 
             print()
 

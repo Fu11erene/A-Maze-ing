@@ -7,3 +7,4 @@ en.subject.pdf
 *config*.txt
 !config.txt
 maze.txt
+.DS_Store

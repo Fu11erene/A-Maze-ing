@@ -76,10 +76,9 @@ def arg_parse() -> Config:
                 raise ValueError()
             elif entry.startswith("\n"):
                 continue
-            else:
-                key, value = entry.split("=")
-                if key not in ConfigOption:
-                    raise ValueError()
+            key, value = entry.split("=")
+            if key not in ConfigOption:
+                raise ValueError()
             if key.lower() in entry_dict.keys():
                 raise ValueError()
             entry_dict[key.lower()] = value.strip()

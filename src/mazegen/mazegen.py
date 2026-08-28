@@ -8,6 +8,9 @@ type Board = list[list[bool]]
 迷路の盤面を定義する型
 """
 
+NORMALL_WALL = "\033[0m#"
+RED_WALL = "\033[41m#"       # 赤い文字の壁
+
 
 class Direction(Enum):
     up = 1
@@ -31,6 +34,9 @@ class MazeGenerator:
     def __init__(self, config: Config) -> None:
         self.config = config
         self.board: Optional[Board] = None
+        self.wall_colour_offset = 0
+        self.wall_list = ["██", "\033[31m██\033[0m", "\033[32m██\033[0m",
+                          "\033[34m██\033[0m", "\033[33m██\033[0m"]
         random.seed(config.seed)
 
     @classmethod
@@ -143,7 +149,7 @@ class MazeGenerator:
         for row in self.board:
             for cell in row:
                 if cell is True:
-                    print("██", end="")
+                    print(self.wall_list[self.wall_colour_offset], end="")
                 else:
                     print("  ", end="")
 
@@ -188,3 +194,8 @@ class MazeGenerator:
         self.board = self._generate_board()
         if not self.config.perfect:
             self._braid(self.board)
+
+    def rotate_wall_colour(self) -> None:
+        self.wall_colour_offset = (
+            self.wall_colour_offset + 1) % len(self.wall_list)
+        self.print_board()

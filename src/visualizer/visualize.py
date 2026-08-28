@@ -13,7 +13,10 @@ def visualize(maze_gen: MazeGenerator) -> None:
         print("2. Show / Hide the shortest path")
         print("3. Rotate the wall colours")
         print("4. Quit")
-        choise = input("Choise? (1-4): ")
+        try:
+            choise = input("Choise? (1-4): ")
+        except KeyboardInterrupt:
+            raise ValueError("\nKeyboard interrupted")
         if choise == "1":
             maze_gen.generate_data()
             maze_gen.print_board()

@@ -115,7 +115,8 @@ class MazeGenerator:
                 (x, y + 1, x, y + 2),
                 (x - 1, y, x - 2, y),
             ):
-                if (1 <= nx <= WIDTH - 2 and 1 <= ny <= HEIGHT - 2 and board[wy][wx]):
+                if (1 <= nx <= WIDTH - 2 and 1 <= ny <= HEIGHT - 2
+                        and board[wy][wx]):
                     candidates.append((wx, wy))
             if candidates:
                 wx, wy = random.choice(candidates)
@@ -151,7 +152,8 @@ class MazeGenerator:
     def _generate_outstr(self) -> str:
         if self.board is None:
             raise Exception(
-                "Cannot generate outstr: The Board has not been initalized yet.")
+                "Cannot generate outstr: "
+                "The Board has not been initalized yet.")
         result = ""
         WIDTH = self.config.width * 2 + 1
         HEIGHT = self.config.height * 2 + 1

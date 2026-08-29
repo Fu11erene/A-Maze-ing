@@ -6,12 +6,15 @@ from pydantic import BaseModel, field_validator, model_validator, \
     ValidationError, Field
 
 
-ConfigOption = [
+CONFIG_OPTIONS = [
     "WIDTH", "HEIGHT", "ENTRY", "EXIT", "PERFECT", "OUTPUT_FILE", "seed"
 ]
 
 
 class Config(BaseModel):
+    """
+    迷路生成のための設定
+    """
     width: int = Field(ge=0, le=100, strict=True)
     height: int = Field(ge=0, le=100, strict=True)
     entry: tuple[int, int]
@@ -63,6 +66,9 @@ class Config(BaseModel):
 
 
 def arg_parse() -> Config:
+    """
+    argpauseライブラリによる引数のパース
+    """
     try:
         parser = ArgumentParser()
         parser.add_argument("filename", type=open, help="設定ファイル")
@@ -72,12 +78,10 @@ def arg_parse() -> Config:
         for entry in args.filename.readlines():
             if entry.startswith("#"):
                 continue
-            elif entry.startswith(" ") and len(entry) > 0:
-                raise ValueError()
             elif entry.startswith("\n"):
                 continue
             key, value = entry.split("=")
-            if key not in ConfigOption:
+            if key not in CONFIG_OPTIONS:
                 raise ValueError()
             if key.lower() in entry_dict.keys():
                 raise ValueError()

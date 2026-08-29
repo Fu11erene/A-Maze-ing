@@ -8,9 +8,6 @@ type Board = list[list[bool]]
 迷路の盤面を定義する型
 """
 
-NORMALL_WALL = "\033[0m#"
-RED_WALL = "\033[41m#"       # 赤い文字の壁
-
 
 class Direction(Enum):
     up = 1
@@ -129,6 +126,9 @@ class MazeGenerator:
                 board[wy][wx] = False
 
     def _generate_board(self) -> Board:
+        """
+        棒倒し法でボードを生成する
+        """
         WIDTH = self.config.width * 2 + 1
         HEIGHT = self.config.height * 2 + 1
         board = [[False for _ in range(WIDTH)] for _ in range(HEIGHT)]
@@ -144,6 +144,9 @@ class MazeGenerator:
         return board
 
     def print_board(self) -> None:
+        """
+        盤面を出力
+        """
         if self.board is None:
             raise Exception("The Board has not been initalized yet.")
         for row in self.board:
@@ -156,6 +159,9 @@ class MazeGenerator:
             print()
 
     def _generate_outstr(self) -> str:
+        """
+        課題で求められている迷路の部分についてのファイルの文字列を構成する
+        """
         if self.board is None:
             raise Exception(
                 "Cannot generate outstr: "

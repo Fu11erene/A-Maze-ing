@@ -7,12 +7,12 @@ def visualize(maze_gen: MazeGenerator) -> None:
     maze_gen.print_board()
     maze_gen.generate_output()
 
+    print("===A-maze-ing ===")
+    print("1. Re-generate a new maze")
+    print("2. Show / Hide the shortest path")
+    print("3. Rotate the wall colours")
+    print("4. Quit")
     while True:
-        print("===A-maze-ing ===")
-        print("1. Re-generate a new maze")
-        print("2. Show / Hide the shortest path")
-        print("3. Rotate the wall colours")
-        print("4. Quit")
         try:
             choise = input("Choise? (1-4): ")
         except KeyboardInterrupt:
@@ -28,4 +28,4 @@ def visualize(maze_gen: MazeGenerator) -> None:
         elif choise == "4":
             exit(0)
         else:
-            raise ValueError("Invalid input")
+            print("Invalid input. Try again.")

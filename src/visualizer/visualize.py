@@ -8,8 +8,8 @@ def visualize(maze_gen: MazeGenerator) -> None:
     maze_gen.generate_output()
 
     while True:
-        print("===A-maze_gen-ing ===")
-        print("1. Re-generate a new maze_gen")
+        print("===A-maze-ing ===")
+        print("1. Re-generate a new maze")
         print("2. Show / Hide the shortest path")
         print("3. Rotate the wall colours")
         print("4. Quit")

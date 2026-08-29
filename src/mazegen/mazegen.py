@@ -160,7 +160,7 @@ class MazeGenerator:
 
     def _generate_outstr(self) -> str:
         """
-        課題で求められているファイルの文字列を構成する
+        課題で求められている迷路の部分についてのファイルの文字列を構成する
         """
         if self.board is None:
             raise Exception(

@@ -12,6 +12,9 @@ ConfigOption = [
 
 
 class Config(BaseModel):
+    """
+    迷路生成のための設定
+    """
     width: int = Field(ge=0, le=100, strict=True)
     height: int = Field(ge=0, le=100, strict=True)
     entry: tuple[int, int]
@@ -63,6 +66,9 @@ class Config(BaseModel):
 
 
 def arg_parse() -> Config:
+    """
+    argpauseライブラリによる引数のパース
+    """
     try:
         parser = ArgumentParser()
         parser.add_argument("filename", type=open, help="設定ファイル")

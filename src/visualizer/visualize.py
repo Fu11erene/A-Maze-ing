@@ -3,6 +3,9 @@ from src.mazegen import MazeGenerator
 
 
 def visualize(maze_gen: MazeGenerator) -> None:
+    """
+    迷路の表示や表示の切り替えなどをするUI
+    """
     maze_gen.generate_data()
     maze_gen.print_board()
     maze_gen.generate_output()

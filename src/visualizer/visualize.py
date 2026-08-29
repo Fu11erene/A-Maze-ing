@@ -2,6 +2,13 @@ from sys import exit
 from src.mazegen import MazeGenerator
 
 
+def _print_operations() -> None:
+    print("1. Re-generate a new maze")
+    print("2. Show / Hide the shortest path")
+    print("3. Rotate the wall colours")
+    print("4. Quit")
+
+
 def visualize(maze_gen: MazeGenerator) -> None:
     """
     迷路の表示や表示の切り替えなどをするUI
@@ -11,10 +18,7 @@ def visualize(maze_gen: MazeGenerator) -> None:
     maze_gen.generate_output()
 
     print("===A-maze-ing ===")
-    print("1. Re-generate a new maze")
-    print("2. Show / Hide the shortest path")
-    print("3. Rotate the wall colours")
-    print("4. Quit")
+    _print_operations()
     while True:
         try:
             choise = input("Choise? (1-4): ")
@@ -32,3 +36,5 @@ def visualize(maze_gen: MazeGenerator) -> None:
             exit(0)
         else:
             print("Invalid input. Try again.")
+            continue
+        _print_operations()

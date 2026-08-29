@@ -78,8 +78,6 @@ def arg_parse() -> Config:
         for entry in args.filename.readlines():
             if entry.startswith("#"):
                 continue
-            elif entry.startswith(" ") and len(entry) > 0:
-                raise ValueError()
             elif entry.startswith("\n"):
                 continue
             key, value = entry.split("=")

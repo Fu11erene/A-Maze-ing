@@ -6,7 +6,7 @@ from pydantic import BaseModel, field_validator, model_validator, \
     ValidationError, Field
 
 
-ConfigOption = [
+CONFIG_OPTIONS = [
     "WIDTH", "HEIGHT", "ENTRY", "EXIT", "PERFECT", "OUTPUT_FILE", "seed"
 ]
 
@@ -83,7 +83,7 @@ def arg_parse() -> Config:
             elif entry.startswith("\n"):
                 continue
             key, value = entry.split("=")
-            if key not in ConfigOption:
+            if key not in CONFIG_OPTIONS:
                 raise ValueError()
             if key.lower() in entry_dict.keys():
                 raise ValueError()

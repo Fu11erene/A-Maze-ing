@@ -3,22 +3,27 @@ import random
 from enum import Enum
 from typing import Optional
 
-type Board = list[list[bool]]
+type Board = list[list[FillStatus]]
 """
 迷路の盤面を定義する型
 """
 
 
+class FillStatus(Enum):
+    empty = 0
+    wall = 1
+    wall_42 = 2
+
+
 class Direction(Enum):
+    """
+    方向を決定する型
+    """
     up = 1
     right = 2
     down = 4
     left = 8
 
-
-"""
-方向を決定する型
-"""
 
 # 4方向についてのenumを生成するs
 
@@ -49,9 +54,9 @@ class MazeGenerator:
         }
         if y == 2:
             possible_dir[Direction.up] = True
-        if board[y][x + 1]:
+        if board[y][x + 1] is not FillStatus.empty:
             possible_dir[Direction.right] = False
-        if board[y][x - 1]:
+        if board[y][x - 1] is not FillStatus.empty:
             possible_dir[Direction.left] = False
 
         possible_dirs = 0
@@ -78,13 +83,13 @@ class MazeGenerator:
         - 2行目以降なら下と左右、ただし四方を壁に囲われて使わないマスができないようにする
         """
         if direction == Direction.up:
-            board[y - 1][x] = True
+            board[y - 1][x] = FillStatus.wall
         elif direction == Direction.down:
-            board[y + 1][x] = True
+            board[y + 1][x] = FillStatus.wall
         elif direction == Direction.left:
-            board[y][x - 1] = True
+            board[y][x - 1] = FillStatus.wall
         elif direction == Direction.right:
-            board[y][x + 1] = True
+            board[y][x + 1] = FillStatus.wall
         else:
             raise ValueError("Unknown direction: got", direction)
 
@@ -99,7 +104,7 @@ class MazeGenerator:
             for x in range(1, WIDTH, 2):
                 walls = (board[y - 1][x], board[y][x + 1],
                          board[y + 1][x], board[y][x - 1])
-                if walls.count(False) == 1:
+                if walls.count(FillStatus.empty) == 1:
                     dead_ends.append((x, y))
         return dead_ends
 
@@ -119,11 +124,11 @@ class MazeGenerator:
                 (x - 1, y, x - 2, y),
             ):
                 if (1 <= nx <= WIDTH - 2 and 1 <= ny <= HEIGHT - 2
-                        and board[wy][wx]):
+                        and board[wy][wx] is not FillStatus.empty):
                     candidates.append((wx, wy))
             if candidates:
                 wx, wy = random.choice(candidates)
-                board[wy][wx] = False
+                board[wy][wx] = FillStatus.empty
 
     def _generate_board(self) -> Board:
         """
@@ -131,14 +136,15 @@ class MazeGenerator:
         """
         WIDTH = self.config.width * 2 + 1
         HEIGHT = self.config.height * 2 + 1
-        board = [[False for _ in range(WIDTH)] for _ in range(HEIGHT)]
+        board: Board = [
+            [FillStatus.empty for _ in range(WIDTH)] for _ in range(HEIGHT)]
 
         for y in range(HEIGHT):
             for x in range(WIDTH):
                 if y == 0 or y == HEIGHT - 1 or x == 0 or x == WIDTH - 1:
-                    board[y][x] = True
+                    board[y][x] = FillStatus.wall
                 elif y % 2 == 0 and x % 2 == 0:
-                    board[y][x] = True
+                    board[y][x] = FillStatus.wall
                     self._decide_stick(x, y, board)
 
         return board
@@ -151,10 +157,13 @@ class MazeGenerator:
             raise Exception("The Board has not been initalized yet.")
         for row in self.board:
             for cell in row:
-                if cell is True:
-                    print(self.wall_list[self.wall_colour_offset], end="")
-                else:
-                    print("  ", end="")
+                match cell:
+                    case FillStatus.wall:
+                        print(self.wall_list[self.wall_colour_offset], end="")
+                    case FillStatus.wall_42:
+                        print("42", end="")
+                    case _:
+                        print("  ", end="")
 
             print()
 
@@ -172,10 +181,10 @@ class MazeGenerator:
         for y in range(1, HEIGHT, 2):
             for x in range(1, WIDTH, 2):
                 # current_cell = self.board[row][col]
-                north = self.board[y-1][x]
-                east = self.board[y][x+1]
-                south = self.board[y+1][x]
-                west = self.board[y][x-1]
+                north = self.board[y-1][x] is not FillStatus.empty
+                east = self.board[y][x+1] is not FillStatus.empty
+                south = self.board[y+1][x] is not FillStatus.empty
+                west = self.board[y][x-1] is not FillStatus.empty
                 current_digit = "%x" % (
                     west * 8 + south * 4 + east * 2 + north)
                 result += current_digit

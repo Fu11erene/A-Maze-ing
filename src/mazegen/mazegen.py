@@ -214,20 +214,14 @@ class MazeGenerator:
             for x, cell in enumerate(row):
                 if (self.path is not None and
                         self.show_path and (y, x) in self.path):
-                    start = self.config.entry
-                    goal = self.config.exit
-                    start_y, start_x = start[1] * 2 + 1, start[0] * 2 + 1
-                    goal_y, goal_x = goal[1] * 2 + 1, goal[0] * 2 + 1
-                    if (start_y, start_x) == (y, x):
-                        print(self.wall_list[1], end="")
-                        continue
-                    if (goal_y, goal_x) == (y, x):
-                        print(self.wall_list[2], end="")
-                        continue
                     print(self.wall_list[3], end="")
                     continue
 
                 match cell:
+                    case FillStatus.entry:
+                        print(self.wall_list[1], end="")
+                    case FillStatus.exit:
+                        print(self.wall_list[2], end="")
                     case FillStatus.wall:
                         print(self.wall_list[self.wall_colour_offset], end="")
                     case FillStatus.wall_42:
@@ -267,6 +261,8 @@ class MazeGenerator:
                 while cur is not None:
                     path.add(cur)
                     cur = prev[cur[0]][cur[1]]
+                path.discard(start)
+                path.discard((y, x))
                 return path
 
             for dy, dx in directions:

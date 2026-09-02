@@ -212,7 +212,8 @@ class MazeGenerator:
             raise Exception("The Board has not been initalized yet.")
         for y, row in enumerate(self.board):
             for x, cell in enumerate(row):
-                if (self.show_path and (y, x) in self.path):
+                if (self.path is not None and
+                        self.show_path and (y, x) in self.path):
                     start = self.config.entry
                     goal = self.config.exit
                     start_y, start_x = start[1] * 2 + 1, start[0] * 2 + 1
@@ -252,7 +253,7 @@ class MazeGenerator:
         visited = [[False] * cols for _ in range(rows)]
         prev: list[list[Optional[tuple[int, int]]]] = [
             [None] * cols for _ in range(rows)]
-        queue = deque()
+        queue: deque[tuple[int, int]] = deque()
         start_y, start_x = start[1] * 2 + 1, start[0] * 2 + 1
         goal_y, goal_x = goal[1] * 2 + 1, goal[0] * 2 + 1
         visited[start_y][start_x] = True
@@ -271,7 +272,8 @@ class MazeGenerator:
             for dy, dx in directions:
                 ny, nx = y + dy, x + dx
                 if 0 <= ny < rows and 0 <= nx < cols:
-                    if board[ny][nx] != FillStatus.wall and not visited[ny][nx]:
+                    if (board is not None and board[ny][nx] != FillStatus.wall
+                            and not visited[ny][nx]):
                         visited[ny][nx] = True
                         prev[ny][nx] = (y, x)
                         queue.append((ny, nx))

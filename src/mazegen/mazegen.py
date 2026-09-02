@@ -2,6 +2,7 @@ from ..parser import Config
 import random
 from enum import Enum
 from typing import Optional
+from collections import deque
 
 type Board = list[list[FillStatus]]
 """
@@ -13,6 +14,8 @@ class FillStatus(Enum):
     empty = 0
     wall = 1
     wall_42 = 2
+    entry = 3
+    exit = 4
 
 
 class Direction(Enum):
@@ -38,6 +41,8 @@ class MazeGenerator:
                           "\033[34m██\033[0m", "\033[33m██\033[0m"]
         self._ARR_WIDTH = self.config.width * 2 + 1
         self._ARR_HEIGHT = self.config.height * 2 + 1
+        self.path: Optional[set[tuple[int, int]]] = None
+        self.show_path = False
         random.seed(config.seed)
 
     @classmethod
@@ -177,10 +182,15 @@ class MazeGenerator:
         """
         WIDTH = self._ARR_WIDTH
         HEIGHT = self._ARR_HEIGHT
+        ent_x, ent_y = self.config.entry
+        ext_x, ext_y = self.config.exit
         board: Board = [
             [FillStatus.empty for _ in range(WIDTH)] for _ in range(HEIGHT)]
         self.board = board
         # self._fill_42_pattern()
+
+        board[ent_y * 2 + 1][ent_x * 2 + 1] = FillStatus.entry
+        board[ext_y * 2 + 1][ext_x * 2 + 1] = FillStatus.exit
 
         for y in range(HEIGHT):
             for x in range(WIDTH):
@@ -200,8 +210,22 @@ class MazeGenerator:
         """
         if self.board is None:
             raise Exception("The Board has not been initalized yet.")
-        for row in self.board:
-            for cell in row:
+        for y, row in enumerate(self.board):
+            for x, cell in enumerate(row):
+                if (self.show_path and (y, x) in self.path):
+                    start = self.config.entry
+                    goal = self.config.exit
+                    start_y, start_x = start[1] * 2 + 1, start[0] * 2 + 1
+                    goal_y, goal_x = goal[1] * 2 + 1, goal[0] * 2 + 1
+                    if (start_y, start_x) == (y, x):
+                        print(self.wall_list[1], end="")
+                        continue
+                    if (goal_y, goal_x) == (y, x):
+                        print(self.wall_list[2], end="")
+                        continue
+                    print(self.wall_list[3], end="")
+                    continue
+
                 match cell:
                     case FillStatus.wall:
                         print(self.wall_list[self.wall_colour_offset], end="")
@@ -211,6 +235,57 @@ class MazeGenerator:
                         print("  ", end="")
 
             print()
+
+    def solve_with_bfs(self) -> Optional[set[tuple[int, int]]]:
+        """
+        BFSで入口から出口までの最短経路を求め、通過するマスの
+        (y, x) 座標集合を返す。到達できない場合は None を返す。
+        """
+        board = self.board
+        start = self.config.entry
+        goal = self.config.exit
+        rows = self.config.height * 2 + 1
+        cols = self.config.width * 2 + 1
+
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+        visited = [[False] * cols for _ in range(rows)]
+        prev: list[list[Optional[tuple[int, int]]]] = [
+            [None] * cols for _ in range(rows)]
+        queue = deque()
+        start_y, start_x = start[1] * 2 + 1, start[0] * 2 + 1
+        goal_y, goal_x = goal[1] * 2 + 1, goal[0] * 2 + 1
+        visited[start_y][start_x] = True
+        queue.append((start_y, start_x))
+
+        while queue:
+            y, x = queue.popleft()
+            if (y, x) == (goal_y, goal_x):
+                path: set[tuple[int, int]] = set()
+                cur: Optional[tuple[int, int]] = (y, x)
+                while cur is not None:
+                    path.add(cur)
+                    cur = prev[cur[0]][cur[1]]
+                return path
+
+            for dy, dx in directions:
+                ny, nx = y + dy, x + dx
+                if 0 <= ny < rows and 0 <= nx < cols:
+                    if board[ny][nx] != FillStatus.wall and not visited[ny][nx]:
+                        visited[ny][nx] = True
+                        prev[ny][nx] = (y, x)
+                        queue.append((ny, nx))
+
+        return None
+
+    def toggle_path(self) -> None:
+        """
+        最短経路の表示・非表示を切り替えて盤面を再描画する
+        """
+        if self.path is None:
+            self.path = self.solve_with_bfs()
+        self.show_path = not self.show_path
+        self.print_board()
 
     def _generate_outstr(self) -> str:
         """
@@ -253,6 +328,8 @@ class MazeGenerator:
         self.board = self._generate_board()
         if not self.config.perfect:
             self._braid(self.board)
+        self.path = None
+        self.show_path = False
 
     def rotate_wall_colour(self) -> None:
         self.wall_colour_offset = (

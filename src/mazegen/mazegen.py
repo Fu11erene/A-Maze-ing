@@ -25,9 +25,6 @@ class Direction(Enum):
     left = 8
 
 
-# 4方向についてのenumを生成するs
-
-
 class MazeGenerator:
     """
     迷路を生成するジェネレーター
@@ -183,7 +180,7 @@ class MazeGenerator:
         board: Board = [
             [FillStatus.empty for _ in range(WIDTH)] for _ in range(HEIGHT)]
         self.board = board
-        self._fill_42_pattern()
+        # self._fill_42_pattern()
 
         for y in range(HEIGHT):
             for x in range(WIDTH):

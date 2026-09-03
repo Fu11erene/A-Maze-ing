@@ -2,7 +2,8 @@ from argparse import ArgumentParser
 from random import randint
 from sys import exit
 from typing import Optional, Self, Any
-from pydantic import BaseModel, field_validator, model_validator, Field, ValidationError
+from pydantic import BaseModel, field_validator, model_validator, \
+    Field, ValidationError
 from ..types import Coordinate
 from ..errors import ParseError
 
@@ -104,7 +105,8 @@ def arg_parse() -> Config:
                 key, value = entry.split("=")
             except ValueError as e:
                 raise ParseError(
-                    f"Invalid line (expected KEY=VALUE): {entry.rstrip()}") from e
+                    "Invalid line"
+                    f"(expected KEY=VALUE): {entry.rstrip()}") from e
             if key not in CONFIG_OPTIONS:
                 raise ParseError(f"Invalid Key: {key}")
             if key.lower() in entry_dict.keys():

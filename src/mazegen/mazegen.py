@@ -212,6 +212,9 @@ class MazeGenerator:
 
             print()
 
+    def clear_terminal(self) -> None:
+        print("\033[H\033[J", end="")
+
     def _generate_outstr(self) -> str:
         """
         課題で求められている迷路の部分についてのファイルの文字列を構成する
@@ -257,4 +260,5 @@ class MazeGenerator:
     def rotate_wall_colour(self) -> None:
         self.wall_colour_offset = (
             self.wall_colour_offset + 2) % len(self.wall_list)
+        self.clear_terminal()
         self.print_board()

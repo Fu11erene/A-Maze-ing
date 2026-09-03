@@ -26,6 +26,7 @@ def visualize(maze_gen: MazeGenerator) -> None:
             raise ValueError("\nKeyboard interrupted")
         if choise == "1":
             maze_gen.generate_data()
+            maze_gen.clear_terminal()
             maze_gen.print_board()
             maze_gen.generate_output()
         elif choise == "2":

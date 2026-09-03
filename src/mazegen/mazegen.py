@@ -261,7 +261,7 @@ class MazeGenerator:
                 while cur is not None:
                     path.add(cur)
                     cur = prev[cur[0]][cur[1]]
-                path.discard(start)
+                path.discard((start_y, start_x))
                 path.discard((y, x))
                 return path
 

@@ -97,7 +97,10 @@ def arg_parse() -> Config:
                 continue
             elif entry.startswith("\n"):
                 continue
-            key, value = entry.split("=")
+try:
+    key, value = entry.split("=", 1)
+except ValueError as e:
+    raise ParseError(f"Invalid line (expected KEY=VALUE): {entry.rstrip()}") from e
             if key not in CONFIG_OPTIONS:
                 raise ParseError("Invalid Key")
             if key.lower() in entry_dict.keys():

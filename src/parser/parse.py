@@ -25,13 +25,21 @@ class Config(BaseModel):
     perfect: bool = Field(default=False)
     seed: Optional[int] = Field(default=randint(0, 100))
 
-    @field_validator('width', 'height', mode='before')
+    @field_validator('width', mode='before')
     @classmethod
-    def parse_size(cls, value: str) -> int:
+    def parse_width(cls, value: str) -> int:
         try:
             return int(value)
         except ValueError:
             raise ParseError("Invalid 'WIDTH'")
+
+    @field_validator('height', mode='before')
+    @classmethod
+    def parse_width(cls, value: str) -> int:
+        try:
+            return int(value)
+        except ValueError:
+            raise ParseError("Invalid 'HIGHT'")
 
     @field_validator('entry', mode='before')
     @classmethod

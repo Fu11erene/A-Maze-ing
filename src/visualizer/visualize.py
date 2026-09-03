@@ -30,7 +30,7 @@ def visualize(maze_gen: MazeGenerator) -> None:
             maze_gen.print_board()
             maze_gen.generate_output()
         elif choise == "2":
-            continue
+            maze_gen.toggle_path()
         elif choise == "3":
             maze_gen.rotate_wall_colour()
         elif choise == "4":

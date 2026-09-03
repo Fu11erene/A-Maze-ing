@@ -4,6 +4,7 @@ from sys import exit
 from typing import Optional, Self, Any
 from pydantic import BaseModel, field_validator, model_validator, \
     ValidationError, Field
+from ..types import Coordinate
 
 
 CONFIG_OPTIONS = [
@@ -17,8 +18,8 @@ class Config(BaseModel):
     """
     width: int = Field(ge=0, le=100, strict=True)
     height: int = Field(ge=0, le=100, strict=True)
-    entry: tuple[int, int]
-    exit: tuple[int, int]
+    entry: Coordinate
+    exit: Coordinate
     output_file: str
     perfect: bool = Field(default=False)
     seed: Optional[int] = Field(default=randint(0, 100))
@@ -33,7 +34,7 @@ class Config(BaseModel):
 
     @field_validator('entry', 'exit', mode='before')
     @classmethod
-    def parse_coordinate(cls, value: str) -> tuple[int, int]:
+    def parse_coordinate(cls, value: str) -> Coordinate:
         try:
             x, y = (int(p) for p in value.split(","))
             return (x, y)
@@ -67,7 +68,7 @@ class Config(BaseModel):
 
 def arg_parse() -> Config:
     """
-    argpauseライブラリによる引数のパース
+    argparseライブラリによる引数のパース
     """
     try:
         parser = ArgumentParser()

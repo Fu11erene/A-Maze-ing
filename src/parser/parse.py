@@ -59,10 +59,12 @@ def parse_height(cls, value: str) -> int:
 
     @field_validator('perfect', mode="before")
     @classmethod
-    def is_valid_perfect(cls, value: str) -> str:
-        if value != "True" and value != "False":
-            raise ParseError("Invalid 'perfect'")
-        return value
+    def is_valid_perfect(cls, value: str) -> bool:
+        if value == "True":
+            return True
+        if value == "False":
+            return False
+        raise ParseError("Invalid 'PERFECT'")
 
     @model_validator(mode="after")
     def is_valid_entry(self) -> Self:

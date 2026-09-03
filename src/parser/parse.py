@@ -5,6 +5,7 @@ from typing import Optional, Self, Any
 from pydantic import BaseModel, field_validator, model_validator, \
     ValidationError, Field
 from ..types import Coordinate
+from ..errors import ParseError
 
 
 CONFIG_OPTIONS = [
@@ -30,22 +31,31 @@ class Config(BaseModel):
         try:
             return int(value)
         except ValueError:
-            raise ValueError()
+            raise ParseError("Invalid 'WIDTH'")
 
-    @field_validator('entry', 'exit', mode='before')
+    @field_validator('entry', mode='before')
     @classmethod
-    def parse_coordinate(cls, value: str) -> Coordinate:
+    def parse_entry(cls, value: str) -> Coordinate:
         try:
             x, y = (int(p) for p in value.split(","))
             return (x, y)
         except ValueError:
-            raise ValueError()
+            raise ParseError("Invalid 'ENTRY'")
+
+    @field_validator('exit', mode='before')
+    @classmethod
+    def parse_exit(cls, value: str) -> Coordinate:
+        try:
+            x, y = (int(p) for p in value.split(","))
+            return (x, y)
+        except ValueError:
+            raise ParseError("Invalid 'EXIT'")
 
     @field_validator('perfect', mode="before")
     @classmethod
     def is_valid_perfect(cls, value: str) -> str:
         if value != "True" and value != "False":
-            raise ValueError()
+            raise ParseError("Invalid 'perfect'")
         return value
 
     @model_validator(mode="after")
@@ -54,7 +64,7 @@ class Config(BaseModel):
         if (entry_x >= 0 and entry_x <= self.width - 1) and \
                 (entry_y >= 0 and entry_y <= self.height - 1):
             return self
-        raise ValueError()
+        raise ParseError("Invalid 'ENTRY'")
 
     @model_validator(mode="after")
     def is_valid_exit(self) -> Self:
@@ -63,7 +73,7 @@ class Config(BaseModel):
             (exit_y >= 0 and exit_y <= self.height - 1) and \
                 self.entry != self.exit:
             return self
-        raise ValueError()
+        raise ParseError("Invalid 'EXIT'")
 
 
 def arg_parse() -> Config:
@@ -83,15 +93,11 @@ def arg_parse() -> Config:
                 continue
             key, value = entry.split("=")
             if key not in CONFIG_OPTIONS:
-                raise ValueError()
+                raise ParseError("Invalid Key")
             if key.lower() in entry_dict.keys():
-                raise ValueError()
+                raise ParseError(f"'{key}' already exits")
             entry_dict[key.lower()] = value.strip()
         config = Config(**entry_dict)
         return config
-    except (ValidationError, ValueError):
-        print("Invalid Input")
-        exit(1)
-    except FileNotFoundError as e:
-        print(e)
-        exit(1)
+    except (ParseError, FileNotFoundError, PermissionError) as e:
+        raise ParseError(e)

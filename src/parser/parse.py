@@ -112,7 +112,10 @@ def arg_parse() -> Config:
             entry_dict[key.lower()] = value.strip()
         config = Config(**entry_dict)
         return config
-    except (ParseError, ValidationError, FileNotFoundError,
+    except ValidationError as e:
+        print(e.errors()[0]['msg'])
+        exit(1)
+    except (ParseError, FileNotFoundError,
             PermissionError) as e:
         print(e)
         exit(1)

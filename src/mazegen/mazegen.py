@@ -1,31 +1,8 @@
-from ..parser import Config
 import random
-from enum import Enum
-from typing import Optional
 from collections import deque
-
-type Board = list[list[FillStatus]]
-"""
-迷路の盤面を定義する型
-"""
-
-
-class FillStatus(Enum):
-    empty = 0
-    wall = 1
-    wall_42 = 2
-    entry = 3
-    exit = 4
-
-
-class Direction(Enum):
-    """
-    方向を決定する型
-    """
-    up = 1
-    right = 2
-    down = 4
-    left = 8
+from typing import Optional
+from ..parser import Config
+from ..types import FillStatus, Direction, Board, Coordinate
 
 
 class MazeGenerator:
@@ -41,7 +18,7 @@ class MazeGenerator:
                           "\033[34m██\033[0m", "\033[33m██\033[0m"]
         self._ARR_WIDTH = self.config.width * 2 + 1
         self._ARR_HEIGHT = self.config.height * 2 + 1
-        self.path: Optional[set[tuple[int, int]]] = None
+        self.path: Optional[set[Coordinate]] = None
         self.show_path = False
         random.seed(config.seed)
 
@@ -104,7 +81,7 @@ class MazeGenerator:
         else:
             raise ValueError("Unknown direction: got", direction)
 
-    def _dead_ends(self, board: Board) -> list[tuple[int, int]]:
+    def _dead_ends(self, board: Board) -> list[Coordinate]:
         """
         行き止まりになっているセル(開口部が1つしかないセル)の座標一覧を返す
         """
@@ -232,7 +209,7 @@ class MazeGenerator:
             print()
 
     # y,xのタプルとx,yのタプルが混在している
-    def solve_with_bfs(self) -> Optional[set[tuple[int, int]]]:
+    def solve_with_bfs(self) -> Optional[set[Coordinate]]:
         """
         BFSで入口から出口までの最短経路を求め、通過するマスの
         (x, y) 座標集合を返す。到達できない場合は None を返す。
@@ -246,9 +223,9 @@ class MazeGenerator:
         directions = [(0, -1), (0, 1), (-1, 0), (1, 0)]
 
         visited = [[False] * cols for _ in range(rows)]
-        prev: list[list[Optional[tuple[int, int]]]] = [
+        prev: list[list[Optional[Coordinate]]] = [
             [None] * cols for _ in range(rows)]
-        queue: deque[tuple[int, int]] = deque()
+        queue: deque[Coordinate] = deque()
         start_x, start_y = start[0] * 2 + 1, start[1] * 2 + 1
         goal_x, goal_y = goal[0] * 2 + 1, goal[1] * 2 + 1
         visited[start_y][start_x] = True
@@ -257,8 +234,8 @@ class MazeGenerator:
         while queue:
             x, y = queue.popleft()
             if (x, y) == (goal_x, goal_y):
-                path: set[tuple[int, int]] = set()
-                cur: Optional[tuple[int, int]] = (x, y)
+                path: set[Coordinate] = set()
+                cur: Optional[Coordinate] = (x, y)
                 while cur is not None:
                     path.add(cur)
                     cur = prev[cur[1]][cur[0]]

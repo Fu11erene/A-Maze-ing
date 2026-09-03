@@ -102,7 +102,7 @@ try:
 except ValueError as e:
     raise ParseError(f"Invalid line (expected KEY=VALUE): {entry.rstrip()}") from e
             if key not in CONFIG_OPTIONS:
-                raise ParseError("Invalid Key")
+                raise ParseError(f"Invalid Key: {key}")
             if key.lower() in entry_dict.keys():
                 raise ParseError(f"'{key}' already exits")
             entry_dict[key.lower()] = value.strip()

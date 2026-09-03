@@ -33,11 +33,11 @@ class Config(BaseModel):
 
     @field_validator('height', mode='before')
     @classmethod
-    def parse_hight(cls, value: str) -> int:
-        try:
-            return int(value)
-        except ValueError:
-            raise ParseError("Invalid 'HIGHT'")
+def parse_height(cls, value: str) -> int:
+    try:
+        return int(value)
+    except ValueError:
+        raise ParseError("Invalid 'HEIGHT'")
 
     @field_validator('entry', mode='before')
     @classmethod

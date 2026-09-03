@@ -213,7 +213,7 @@ class MazeGenerator:
         for y, row in enumerate(self.board):
             for x, cell in enumerate(row):
                 if (self.path is not None and
-                        self.show_path and (y, x) in self.path):
+                        self.show_path and (x, y) in self.path):
                     print(self.wall_list[3], end="")
                     continue
 
@@ -231,10 +231,11 @@ class MazeGenerator:
 
             print()
 
+    # y,xのタプルとx,yのタプルが混在している
     def solve_with_bfs(self) -> Optional[set[tuple[int, int]]]:
         """
         BFSで入口から出口までの最短経路を求め、通過するマスの
-        (y, x) 座標集合を返す。到達できない場合は None を返す。
+        (x, y) 座標集合を返す。到達できない場合は None を返す。
         """
         board = self.board
         start = self.config.entry
@@ -242,37 +243,38 @@ class MazeGenerator:
         rows = self.config.height * 2 + 1
         cols = self.config.width * 2 + 1
 
-        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        directions = [(0, -1), (0, 1), (-1, 0), (1, 0)]
 
         visited = [[False] * cols for _ in range(rows)]
         prev: list[list[Optional[tuple[int, int]]]] = [
             [None] * cols for _ in range(rows)]
         queue: deque[tuple[int, int]] = deque()
-        start_y, start_x = start[1] * 2 + 1, start[0] * 2 + 1
-        goal_y, goal_x = goal[1] * 2 + 1, goal[0] * 2 + 1
+        start_x, start_y = start[0] * 2 + 1, start[1] * 2 + 1
+        goal_x, goal_y = goal[0] * 2 + 1, goal[1] * 2 + 1
         visited[start_y][start_x] = True
-        queue.append((start_y, start_x))
+        queue.append((start_x, start_y))
 
         while queue:
-            y, x = queue.popleft()
-            if (y, x) == (goal_y, goal_x):
+            x, y = queue.popleft()
+            if (x, y) == (goal_x, goal_y):
                 path: set[tuple[int, int]] = set()
-                cur: Optional[tuple[int, int]] = (y, x)
+                cur: Optional[tuple[int, int]] = (x, y)
                 while cur is not None:
                     path.add(cur)
-                    cur = prev[cur[0]][cur[1]]
-                path.discard((start_y, start_x))
-                path.discard((y, x))
+                    cur = prev[cur[1]][cur[0]]
+                path.discard((start_x, start_y))
+                path.discard((x, y))
                 return path
 
-            for dy, dx in directions:
-                ny, nx = y + dy, x + dx
+            for dx, dy in directions:
+                nx, ny = x + dx, y + dy
+                # 条件式の分割を検討
                 if 0 <= ny < rows and 0 <= nx < cols:
                     if (board is not None and board[ny][nx] != FillStatus.wall
                             and not visited[ny][nx]):
                         visited[ny][nx] = True
-                        prev[ny][nx] = (y, x)
-                        queue.append((ny, nx))
+                        prev[ny][nx] = (x, y)
+                        queue.append((nx, ny))
 
         return None
 

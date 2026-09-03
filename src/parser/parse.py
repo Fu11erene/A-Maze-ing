@@ -1,5 +1,6 @@
 from argparse import ArgumentParser
 from random import randint
+from sys import exit
 from typing import Optional, Self, Any
 from pydantic import BaseModel, field_validator, model_validator, Field, ValidationError
 from ..types import Coordinate
@@ -33,11 +34,11 @@ class Config(BaseModel):
 
     @field_validator('height', mode='before')
     @classmethod
-def parse_height(cls, value: str) -> int:
-    try:
-        return int(value)
-    except ValueError:
-        raise ParseError("Invalid 'HEIGHT'")
+    def parse_height(cls, value: str) -> int:
+        try:
+            return int(value)
+        except ValueError:
+            raise ParseError("Invalid 'HEIGHT'")
 
     @field_validator('entry', mode='before')
     @classmethod
@@ -99,10 +100,11 @@ def arg_parse() -> Config:
                 continue
             elif entry.startswith("\n"):
                 continue
-try:
-    key, value = entry.split("=", 1)
-except ValueError as e:
-    raise ParseError(f"Invalid line (expected KEY=VALUE): {entry.rstrip()}") from e
+            try:
+                key, value = entry.split("=")
+            except ValueError as e:
+                raise ParseError(
+                    f"Invalid line (expected KEY=VALUE): {entry.rstrip()}") from e
             if key not in CONFIG_OPTIONS:
                 raise ParseError(f"Invalid Key: {key}")
             if key.lower() in entry_dict.keys():
@@ -110,5 +112,7 @@ except ValueError as e:
             entry_dict[key.lower()] = value.strip()
         config = Config(**entry_dict)
         return config
-    except (ParseError, FileNotFoundError, PermissionError) as e:
-        raise ParseError(e)
+    except (ParseError, ValidationError, FileNotFoundError,
+            PermissionError) as e:
+        print(e)
+        exit(1)

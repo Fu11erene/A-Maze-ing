@@ -35,7 +35,7 @@ class Config(BaseModel):
 
     @field_validator('height', mode='before')
     @classmethod
-    def parse_width(cls, value: str) -> int:
+    def parse_hight(cls, value: str) -> int:
         try:
             return int(value)
         except ValueError:

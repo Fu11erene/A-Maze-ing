@@ -262,6 +262,7 @@ class MazeGenerator:
         if self.path is None:
             self.path = self.solve_with_bfs()
         self.show_path = not self.show_path
+        self.clear_terminal()
         self.print_board()
 
     def clear_terminal(self) -> None:

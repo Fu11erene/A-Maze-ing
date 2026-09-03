@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 from random import randint
 from typing import Optional, Self, Any
-from pydantic import BaseModel, field_validator, model_validator, Field
+from pydantic import BaseModel, field_validator, model_validator, Field, ValidationError
 from ..types import Coordinate
 from ..errors import ParseError
 

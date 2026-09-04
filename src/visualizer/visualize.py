@@ -3,6 +3,7 @@ from ..mazegen import MazeGenerator
 
 
 def _print_operations() -> None:
+    print("===A-maze-ing ===")
     print("1. Re-generate a new maze")
     print("2. Show / Hide the shortest path")
     print("3. Rotate the wall colours")
@@ -16,9 +17,8 @@ def visualize(maze_gen: MazeGenerator) -> None:
     maze_gen.generate_data()
     maze_gen.print_board()
     maze_gen.generate_output()
-
-    print("===A-maze-ing ===")
     _print_operations()
+
     while True:
         try:
             choise = input("Choise? (1-4): ")
@@ -26,13 +26,14 @@ def visualize(maze_gen: MazeGenerator) -> None:
             return
         if choise == "1":
             maze_gen.generate_data()
-            maze_gen.clear_terminal()
             maze_gen.print_board()
             maze_gen.generate_output()
         elif choise == "2":
             maze_gen.toggle_path()
+            maze_gen.print_board()
         elif choise == "3":
             maze_gen.rotate_wall_colour()
+            maze_gen.print_board()
         elif choise == "4":
             exit(0)
         else:

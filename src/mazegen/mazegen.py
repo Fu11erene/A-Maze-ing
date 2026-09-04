@@ -187,6 +187,7 @@ class MazeGenerator:
         """
         if self.board is None:
             raise Exception("The Board has not been initalized yet.")
+        self._clear_terminal()
         for y, row in enumerate(self.board):
             for x, cell in enumerate(row):
                 if (self.path is not None and
@@ -208,7 +209,6 @@ class MazeGenerator:
 
             print()
 
-    # y,xのタプルとx,yのタプルが混在している
     def solve_with_bfs(self) -> Optional[set[Coordinate]]:
         """
         BFSで入口から出口までの最短経路を求め、通過するマスの
@@ -217,8 +217,8 @@ class MazeGenerator:
         board = self.board
         start = self.config.entry
         goal = self.config.exit
-        rows = self.config.height * 2 + 1
-        cols = self.config.width * 2 + 1
+        rows = self._ARR_HEIGHT
+        cols = self._ARR_WIDTH
 
         directions = [(0, -1), (0, 1), (-1, 0), (1, 0)]
 
@@ -262,10 +262,8 @@ class MazeGenerator:
         if self.path is None:
             self.path = self.solve_with_bfs()
         self.show_path = not self.show_path
-        self.clear_terminal()
-        self.print_board()
 
-    def clear_terminal(self) -> None:
+    def _clear_terminal(self) -> None:
         print("\033[H\033[J", end="")
 
     def _generate_outstr(self) -> str:
@@ -315,5 +313,3 @@ class MazeGenerator:
     def rotate_wall_colour(self) -> None:
         self.wall_colour_offset = (
             self.wall_colour_offset + 2) % len(self.wall_list)
-        self.clear_terminal()
-        self.print_board()

@@ -68,6 +68,9 @@ class Config(BaseModel):
 
 
 def _parse_config_lines(lines: list[str]) -> dict[str, str]:
+    """
+    設定ファイルの各行を読んでentry_dictに格納する
+    """
     entry_dict: dict[str, str] = {}
     for entry in lines:
         if entry.startswith("#") or entry.startswith("\n"):
@@ -76,7 +79,7 @@ def _parse_config_lines(lines: list[str]) -> dict[str, str]:
             key, value = entry.split("=")
         except ValueError as e:
             raise ParseError(
-                f"Invalid line (expected KEY=VALUE): {entry.rstrip()}")
+                f"Invalid line (expected KEY=VALUE): {entry.rstrip()}") from e
         if key not in CONFIG_OPTIONS:
             raise ParseError(f"Invalid Key: {key}")
         if key.lower() in entry_dict:
@@ -86,8 +89,11 @@ def _parse_config_lines(lines: list[str]) -> dict[str, str]:
 
 
 def _format_validation_error(e: ValidationError) -> str:
+    """
+    ValidationErrorを捕捉したときのエラーメッセージのフォーマット
+    """
     err_loc = e.errors()[0]['loc'][0]
-    err_msg = e.errors()[0]['msg']
+    err_msg = e.errors()[0]['msg'].replace("Value error, ", "")
 
     if err_loc != "seed":
         err_loc = str(err_loc).upper()

@@ -20,6 +20,7 @@ class MazeGenerator:
         self._ARR_HEIGHT = self.config.height * 2 + 1
         self.path: Optional[set[Coordinate]] = None
         self.show_path = False
+        self.path_direction = ""
         random.seed(config.seed)
 
     @classmethod
@@ -181,7 +182,55 @@ class MazeGenerator:
 
         return board
 
-    def _solve_with_bfs(self) -> Optional[set[Coordinate]]:
+    def _reconstruct_path(
+        self,
+        start: Coordinate,
+        goal: Coordinate,
+        prev_cordinate: list[list[Optional[Coordinate]]],
+    ) -> set[Coordinate]:
+        """
+        goal から prev_cordinate を辿って start までの経路座標集合を復元する。
+        start と goal 自身は含めない。
+        """
+        path: set[Coordinate] = set()
+        cur: Optional[Coordinate] = goal
+        while cur is not None:
+            path.add(cur)
+            cur = prev_cordinate[cur[1]][cur[0]]
+        path.discard(start)
+        path.discard(goal)
+        return path
+
+    def _compute_reversed_directions(
+        self,
+        start: Coordinate,
+        goal: Coordinate,
+        prev_cordinate: list[list[Optional[Coordinate]]],
+    ) -> str:
+        """
+        goal から start に向かって prev_cordinate を辿りながら、
+        各ステップの移動方向(N/S/E/W)を連結した文字列を返す。
+        """
+        directions = ""
+        cur = goal
+        while cur != start:
+            cur_x, cur_y = cur
+            prev = prev_cordinate[cur_y][cur_x]
+            if prev is None:
+                raise ValueError("Invalid Maze")
+            prev_x, prev_y = prev
+            if (prev_x + 1, prev_y) == (cur_x, cur_y):
+                directions += "E"
+            elif (prev_x - 1, prev_y) == (cur_x, cur_y):
+                directions += "W"
+            if (prev_x, prev_y + 1) == (cur_x, cur_y):
+                directions += "S"
+            if (prev_x, prev_y - 1) == (cur_x, cur_y):
+                directions += "N"
+            cur = (prev_x, prev_y)
+        return directions
+
+    def _solve_with_bfs(self) -> tuple[Optional[set[Coordinate]], str]:
         """
         BFSで入口から出口までの最短経路を求め、通過するマスの
         (x, y) 座標集合を返す。到達できない場合は None を返す。
@@ -195,7 +244,7 @@ class MazeGenerator:
         directions = [(0, -1), (0, 1), (-1, 0), (1, 0)]
 
         visited = [[False] * WIDTH for _ in range(HEIGHT)]
-        prev: list[list[Optional[Coordinate]]] = [
+        prev_cordinate: list[list[Optional[Coordinate]]] = [
             [None] * WIDTH for _ in range(HEIGHT)]
         queue: deque[Coordinate] = deque()
         start_x, start_y = start[0] * 2 + 1, start[1] * 2 + 1
@@ -206,14 +255,12 @@ class MazeGenerator:
         while queue:
             x, y = queue.popleft()
             if (x, y) == (goal_x, goal_y):
-                path: set[Coordinate] = set()
-                cur: Optional[Coordinate] = (x, y)
-                while cur is not None:
-                    path.add(cur)
-                    cur = prev[cur[1]][cur[0]]
-                path.discard((start_x, start_y))
-                path.discard((x, y))
-                return path
+                path = self._reconstruct_path(
+                    (start_x, start_y), (x, y), prev_cordinate)
+                reversed_path_direction = self._compute_reversed_directions(
+                    (start_x, start_y), (goal_x, goal_y), prev_cordinate)
+                path_direction = reversed_path_direction[::-1]
+                return (path, path_direction)
 
             for dx, dy in directions:
                 nx, ny = x + dx, y + dy
@@ -222,10 +269,10 @@ class MazeGenerator:
                     if (board is not None and board[ny][nx] != FillStatus.wall
                             and not visited[ny][nx]):
                         visited[ny][nx] = True
-                        prev[ny][nx] = (x, y)
+                        prev_cordinate[ny][nx] = (x, y)
                         queue.append((nx, ny))
 
-        return None
+        return None, ""
 
     def _clear_terminal(self) -> None:
         print("\033[H\033[J", end="")
@@ -265,6 +312,8 @@ class MazeGenerator:
             f.write("\n")
             f.write(f"{ext_x},{ext_y}")
             f.write("\n")
+            f.write(self.path_direction)
+            f.write("\n")
 
     def generate_data(self) -> None:
         """
@@ -274,7 +323,7 @@ class MazeGenerator:
         self.board = self._generate_board()
         if not self.config.perfect:
             self._braid(self.board)
-        self.path = None
+        self.path, self.path_direction = self._solve_with_bfs()
         self.show_path = False
 
     def print_board(self) -> None:
@@ -322,6 +371,4 @@ class MazeGenerator:
         """
         最短経路の表示・非表示を切り替えて盤面を再描画する
         """
-        if self.path is None:
-            self.path = self._solve_with_bfs()
         self.show_path = not self.show_path

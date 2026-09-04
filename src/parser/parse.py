@@ -1,3 +1,4 @@
+import re
 from argparse import ArgumentParser
 from random import randint
 from sys import exit
@@ -17,47 +18,30 @@ class Config(BaseModel):
     """
     迷路生成のための設定
     """
-    width: int = Field(ge=0, le=100, strict=True)
-    height: int = Field(ge=0, le=100, strict=True)
+    width: int = Field(ge=0, le=100)
+    height: int = Field(ge=0, le=100)
     entry: Coordinate
     exit: Coordinate
     output_file: str
     perfect: bool = Field(default=False)
     seed: Optional[int] = Field(default=randint(0, 100))
 
-    @field_validator('width', mode='before')
     @classmethod
-    def parse_width(cls, value: str) -> int:
-        try:
-            return int(value)
-        except ValueError:
-            raise ParseError("Invalid 'WIDTH'")
+    def _to_int(cls, value: str) -> int:
+        if "." in value:
+            raise ValueError("Input should be a valid integer")
+        return int(value)
 
-    @field_validator('height', mode='before')
+    @field_validator('width', 'height', mode='before')
     @classmethod
-    def parse_height(cls, value: str) -> int:
-        try:
-            return int(value)
-        except ValueError:
-            raise ParseError("Invalid 'HEIGHT'")
+    def parse_dimension(cls, value: str) -> int:
+        return cls._to_int(value)
 
-    @field_validator('entry', mode='before')
+    @field_validator('entry', 'exit', mode='before')
     @classmethod
     def parse_entry(cls, value: str) -> Coordinate:
-        try:
-            x, y = (int(p) for p in value.split(","))
-            return (x, y)
-        except ValueError:
-            raise ParseError("Invalid 'ENTRY'")
-
-    @field_validator('exit', mode='before')
-    @classmethod
-    def parse_exit(cls, value: str) -> Coordinate:
-        try:
-            x, y = (int(p) for p in value.split(","))
-            return (x, y)
-        except ValueError:
-            raise ParseError("Invalid 'EXIT'")
+        x, y = value.split(",")
+        return (cls._to_int(x), cls._to_int(y))
 
     @field_validator('perfect', mode="before")
     @classmethod
@@ -66,24 +50,22 @@ class Config(BaseModel):
             return True
         if value == "False":
             return False
-        raise ParseError("Invalid 'PERFECT'")
+        raise ParseError(
+            "'perfect' should be 'True' or 'False'")
+
+    def _in_bounds(self, point: Coordinate) -> bool:
+        x, y = point
+        return 0 <= x <= self.width - 1 and 0 <= y <= self.height - 1
 
     @model_validator(mode="after")
-    def is_valid_entry(self) -> Self:
-        entry_x, entry_y = self.entry
-        if (entry_x >= 0 and entry_x <= self.width - 1) and \
-                (entry_y >= 0 and entry_y <= self.height - 1):
-            return self
-        raise ParseError("Invalid 'ENTRY'")
-
-    @model_validator(mode="after")
-    def is_valid_exit(self) -> Self:
-        exit_x, exit_y = self.exit
-        if (exit_x >= 0 and exit_x <= self.width - 1) and \
-            (exit_y >= 0 and exit_y <= self.height - 1) and \
-                self.entry != self.exit:
-            return self
-        raise ParseError("Invalid 'EXIT'")
+    def validate_entry_and_exit(self) -> Self:
+        if not self._in_bounds(self.entry):
+            raise ParseError("Invalid 'ENTRY'")
+        if not self._in_bounds(self.exit):
+            raise ParseError("Invalid 'EXIT'")
+        if self.entry == self.exit:
+            raise ParseError("Invalid 'EXIT'")
+        return self
 
 
 def arg_parse() -> Config:
@@ -115,9 +97,13 @@ def arg_parse() -> Config:
         config = Config(**entry_dict)
         return config
     except ValidationError as e:
-        print(f"{e.errors()[0]['msg']}: {e.errors()[0]['loc'][0]}")
+        err_loc = e.errors()[0]['loc'][0]
+        err_msg = e.errors()[0]['msg'].replace("Value error, ", "")
+
+        if err_loc != "seed":
+            err_loc = str(err_loc).upper()
+        print(f"{err_msg}: {err_loc}")
         exit(1)
-    except (ParseError, FileNotFoundError,
-            PermissionError) as e:
+    except (ParseError, FileNotFoundError, PermissionError) as e:
         print(e)
         exit(1)

@@ -1,8 +1,7 @@
-import re
 from argparse import ArgumentParser
 from random import randint
 from sys import exit
-from typing import Optional, Self, Any
+from typing import Optional, Self
 from pydantic import BaseModel, field_validator, model_validator, \
     Field, ValidationError
 from ..types import Coordinate
@@ -24,7 +23,7 @@ class Config(BaseModel):
     exit: Coordinate
     output_file: str
     perfect: bool = Field(default=False)
-    seed: Optional[int] = Field(default=randint(0, 100))
+    seed: Optional[int] = Field(default_factory=lambda: randint(0, 100))
 
     @classmethod
     def _to_int(cls, value: str) -> int:
@@ -68,6 +67,33 @@ class Config(BaseModel):
         return self
 
 
+def _parse_config_lines(lines: list[str]) -> dict[str, str]:
+    entry_dict: dict[str, str] = {}
+    for entry in lines:
+        if entry.startswith("#") or entry.startswith("\n"):
+            continue
+        try:
+            key, value = entry.split("=")
+        except ValueError as e:
+            raise ParseError(
+                f"Invalid line (expected KEY=VALUE): {entry.rstrip()}")
+        if key not in CONFIG_OPTIONS:
+            raise ParseError(f"Invalid Key: {key}")
+        if key.lower() in entry_dict:
+            raise ParseError(f"'{key}' already exits")
+        entry_dict[key.lower()] = value.strip()
+    return entry_dict
+
+
+def _format_validation_error(e: ValidationError) -> str:
+    err_loc = e.errors()[0]['loc'][0]
+    err_msg = e.errors()[0]['msg']
+
+    if err_loc != "seed":
+        err_loc = str(err_loc).upper()
+    return f"{err_msg}: {err_loc}"
+
+
 def arg_parse() -> Config:
     """
     argparseライブラリによる引数のパース
@@ -76,33 +102,10 @@ def arg_parse() -> Config:
         parser = ArgumentParser()
         parser.add_argument("filename", type=open, help="設定ファイル")
         args = parser.parse_args()
-        entry_dict: dict[str, Any] = {}
-
-        for entry in args.filename.readlines():
-            if entry.startswith("#"):
-                continue
-            elif entry.startswith("\n"):
-                continue
-            try:
-                key, value = entry.split("=")
-            except ValueError as e:
-                raise ParseError(
-                    "Invalid line"
-                    f"(expected KEY=VALUE): {entry.rstrip()}") from e
-            if key not in CONFIG_OPTIONS:
-                raise ParseError(f"Invalid Key: {key}")
-            if key.lower() in entry_dict.keys():
-                raise ParseError(f"'{key}' already exits")
-            entry_dict[key.lower()] = value.strip()
-        config = Config(**entry_dict)
-        return config
+        entry_dict = _parse_config_lines(args.filename.readlines())
+        return Config.model_validate(entry_dict)
     except ValidationError as e:
-        err_loc = e.errors()[0]['loc'][0]
-        err_msg = e.errors()[0]['msg'].replace("Value error, ", "")
-
-        if err_loc != "seed":
-            err_loc = str(err_loc).upper()
-        print(f"{err_msg}: {err_loc}")
+        print(_format_validation_error(e))
         exit(1)
     except (ParseError, FileNotFoundError, PermissionError) as e:
         print(e)

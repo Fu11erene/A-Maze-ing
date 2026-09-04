@@ -181,41 +181,7 @@ class MazeGenerator:
 
         return board
 
-    def print_board(self) -> None:
-        """
-        盤面を出力
-        """
-        if self.board is None:
-            raise Exception("The Board has not been initialized yet.")
-        self._clear_terminal()
-        for y, row in enumerate(self.board):
-            for x, cell in enumerate(row):
-                if (self.path is not None and
-                        self.show_path and (x, y) in self.path):
-                    print(
-                        self.wall_list[(self.wall_colour_offset + 1)
-                                       % len(self.wall_list)], end="")
-                    continue
-
-                match cell:
-                    case FillStatus.entry:
-                        print(
-                            self.wall_list[(self.wall_colour_offset + 2)
-                                           % len(self.wall_list)], end="")
-                    case FillStatus.exit:
-                        print(
-                            self.wall_list[(self.wall_colour_offset + 3)
-                                           % len(self.wall_list)], end="")
-                    case FillStatus.wall:
-                        print(self.wall_list[self.wall_colour_offset], end="")
-                    case FillStatus.wall_42:
-                        print("42", end="")
-                    case _:
-                        print("  ", end="")
-
-            print()
-
-    def solve_with_bfs(self) -> Optional[set[Coordinate]]:
+    def _solve_with_bfs(self) -> Optional[set[Coordinate]]:
         """
         BFSで入口から出口までの最短経路を求め、通過するマスの
         (x, y) 座標集合を返す。到達できない場合は None を返す。
@@ -260,14 +226,6 @@ class MazeGenerator:
                         queue.append((nx, ny))
 
         return None
-
-    def toggle_path(self) -> None:
-        """
-        最短経路の表示・非表示を切り替えて盤面を再描画する
-        """
-        if self.path is None:
-            self.path = self.solve_with_bfs()
-        self.show_path = not self.show_path
 
     def _clear_terminal(self) -> None:
         print("\033[H\033[J", end="")
@@ -319,9 +277,51 @@ class MazeGenerator:
         self.path = None
         self.show_path = False
 
+    def print_board(self) -> None:
+        """
+        盤面を出力
+        """
+        if self.board is None:
+            raise Exception("The Board has not been initialized yet.")
+        self._clear_terminal()
+        for y, row in enumerate(self.board):
+            for x, cell in enumerate(row):
+                if (self.path is not None and
+                        self.show_path and (x, y) in self.path):
+                    print(
+                        self.wall_list[(self.wall_colour_offset + 1)
+                                       % len(self.wall_list)], end="")
+                    continue
+
+                match cell:
+                    case FillStatus.entry:
+                        print(
+                            self.wall_list[(self.wall_colour_offset + 2)
+                                           % len(self.wall_list)], end="")
+                    case FillStatus.exit:
+                        print(
+                            self.wall_list[(self.wall_colour_offset + 3)
+                                           % len(self.wall_list)], end="")
+                    case FillStatus.wall:
+                        print(self.wall_list[self.wall_colour_offset], end="")
+                    case FillStatus.wall_42:
+                        print("42", end="")
+                    case _:
+                        print("  ", end="")
+
+            print()
+
     def rotate_wall_colour(self) -> None:
         """
         壁の色を変える
         """
         self.wall_colour_offset = (
             self.wall_colour_offset + 1) % len(self.wall_list)
+
+    def toggle_path(self) -> None:
+        """
+        最短経路の表示・非表示を切り替えて盤面を再描画する
+        """
+        if self.path is None:
+            self.path = self._solve_with_bfs()
+        self.show_path = not self.show_path

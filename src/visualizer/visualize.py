@@ -1,5 +1,5 @@
 from sys import exit
-from src.mazegen import MazeGenerator
+from ..mazegen import MazeGenerator
 
 
 def _print_operations() -> None:
@@ -22,8 +22,8 @@ def visualize(maze_gen: MazeGenerator) -> None:
     while True:
         try:
             choise = input("Choise? (1-4): ")
-        except KeyboardInterrupt:
-            raise ValueError("\nKeyboard interrupted")
+        except (KeyboardInterrupt, EOFError):
+            return
         if choise == "1":
             maze_gen.generate_data()
             maze_gen.clear_terminal()

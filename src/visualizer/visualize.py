@@ -21,20 +21,20 @@ def visualize(maze_gen: MazeGenerator) -> None:
 
     while True:
         try:
-            choise = input("Choise? (1-4): ")
+            choice = input("Choice? (1-4): ")
         except (KeyboardInterrupt, EOFError):
             return
-        if choise == "1":
+        if choice == "1":
             maze_gen.generate_data()
             maze_gen.print_board()
             maze_gen.generate_output()
-        elif choise == "2":
+        elif choice == "2":
             maze_gen.toggle_path()
             maze_gen.print_board()
-        elif choise == "3":
+        elif choice == "3":
             maze_gen.rotate_wall_colour()
             maze_gen.print_board()
-        elif choise == "4":
+        elif choice == "4":
             exit(0)
         else:
             print("Invalid input. Try again.")

@@ -186,7 +186,7 @@ class MazeGenerator:
         盤面を出力
         """
         if self.board is None:
-            raise Exception("The Board has not been initalized yet.")
+            raise Exception("The Board has not been initialized yet.")
         self._clear_terminal()
         for y, row in enumerate(self.board):
             for x, cell in enumerate(row):

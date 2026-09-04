@@ -295,6 +295,9 @@ class MazeGenerator:
         return result
 
     def generate_output(self) -> None:
+        """
+        迷路の情報、ENTRY、EXIT、正解の経路の経路をファイルに出力する
+        """
         outstr = self._generate_outstr()
         ent_x, ent_y = self.config.entry
         ext_x, ext_y = self.config.exit
@@ -317,5 +320,8 @@ class MazeGenerator:
         self.show_path = False
 
     def rotate_wall_colour(self) -> None:
+        """
+        壁の色を変える
+        """
         self.wall_colour_offset = (
             self.wall_colour_offset + 1) % len(self.wall_list)

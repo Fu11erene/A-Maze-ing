@@ -3,7 +3,9 @@ from random import randint
 from sys import exit
 from typing import Optional, Self, Any
 from pydantic import BaseModel, field_validator, model_validator, \
-    ValidationError, Field
+    Field, ValidationError
+from ..types import Coordinate
+from ..errors import ParseError
 
 
 CONFIG_OPTIONS = [
@@ -17,35 +19,54 @@ class Config(BaseModel):
     """
     width: int = Field(ge=0, le=100, strict=True)
     height: int = Field(ge=0, le=100, strict=True)
-    entry: tuple[int, int]
-    exit: tuple[int, int]
+    entry: Coordinate
+    exit: Coordinate
     output_file: str
     perfect: bool = Field(default=False)
     seed: Optional[int] = Field(default=randint(0, 100))
 
-    @field_validator('width', 'height', mode='before')
+    @field_validator('width', mode='before')
     @classmethod
-    def parse_size(cls, value: str) -> int:
+    def parse_width(cls, value: str) -> int:
         try:
             return int(value)
         except ValueError:
-            raise ValueError()
+            raise ParseError("Invalid 'WIDTH'")
 
-    @field_validator('entry', 'exit', mode='before')
+    @field_validator('height', mode='before')
     @classmethod
-    def parse_coordinate(cls, value: str) -> tuple[int, int]:
+    def parse_height(cls, value: str) -> int:
+        try:
+            return int(value)
+        except ValueError:
+            raise ParseError("Invalid 'HEIGHT'")
+
+    @field_validator('entry', mode='before')
+    @classmethod
+    def parse_entry(cls, value: str) -> Coordinate:
         try:
             x, y = (int(p) for p in value.split(","))
             return (x, y)
         except ValueError:
-            raise ValueError()
+            raise ParseError("Invalid 'ENTRY'")
+
+    @field_validator('exit', mode='before')
+    @classmethod
+    def parse_exit(cls, value: str) -> Coordinate:
+        try:
+            x, y = (int(p) for p in value.split(","))
+            return (x, y)
+        except ValueError:
+            raise ParseError("Invalid 'EXIT'")
 
     @field_validator('perfect', mode="before")
     @classmethod
-    def is_valid_perfect(cls, value: str) -> str:
-        if value != "True" and value != "False":
-            raise ValueError()
-        return value
+    def is_valid_perfect(cls, value: str) -> bool:
+        if value == "True":
+            return True
+        if value == "False":
+            return False
+        raise ParseError("Invalid 'PERFECT'")
 
     @model_validator(mode="after")
     def is_valid_entry(self) -> Self:
@@ -53,7 +74,7 @@ class Config(BaseModel):
         if (entry_x >= 0 and entry_x <= self.width - 1) and \
                 (entry_y >= 0 and entry_y <= self.height - 1):
             return self
-        raise ValueError()
+        raise ParseError("Invalid 'ENTRY'")
 
     @model_validator(mode="after")
     def is_valid_exit(self) -> Self:
@@ -62,12 +83,12 @@ class Config(BaseModel):
             (exit_y >= 0 and exit_y <= self.height - 1) and \
                 self.entry != self.exit:
             return self
-        raise ValueError()
+        raise ParseError("Invalid 'EXIT'")
 
 
 def arg_parse() -> Config:
     """
-    argpauseライブラリによる引数のパース
+    argparseライブラリによる引数のパース
     """
     try:
         parser = ArgumentParser()
@@ -80,17 +101,23 @@ def arg_parse() -> Config:
                 continue
             elif entry.startswith("\n"):
                 continue
-            key, value = entry.split("=")
+            try:
+                key, value = entry.split("=")
+            except ValueError as e:
+                raise ParseError(
+                    "Invalid line"
+                    f"(expected KEY=VALUE): {entry.rstrip()}") from e
             if key not in CONFIG_OPTIONS:
-                raise ValueError()
+                raise ParseError(f"Invalid Key: {key}")
             if key.lower() in entry_dict.keys():
-                raise ValueError()
+                raise ParseError(f"'{key}' already exits")
             entry_dict[key.lower()] = value.strip()
         config = Config(**entry_dict)
         return config
-    except (ValidationError, ValueError):
-        print("Invalid Input")
+    except ValidationError as e:
+        print(f"{e.errors()[0]['msg']}: {e.errors()[0]['loc'][0]}")
         exit(1)
-    except FileNotFoundError as e:
+    except (ParseError, FileNotFoundError,
+            PermissionError) as e:
         print(e)
         exit(1)

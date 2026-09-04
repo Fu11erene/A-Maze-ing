@@ -17,4 +17,4 @@ if __name__ == "__main__":
         main()
     except Exception as e:
         print(e)
-        exit(1)
+raise SystemExit(1)

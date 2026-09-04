@@ -3,6 +3,7 @@ from ..mazegen import MazeGenerator
 
 
 def _print_operations() -> None:
+    print("===A-maze-ing ===")
     print("1. Re-generate a new maze")
     print("2. Show / Hide the shortest path")
     print("3. Rotate the wall colours")
@@ -16,24 +17,24 @@ def visualize(maze_gen: MazeGenerator) -> None:
     maze_gen.generate_data()
     maze_gen.print_board()
     maze_gen.generate_output()
-
-    print("===A-maze-ing ===")
     _print_operations()
+
     while True:
         try:
-            choise = input("Choise? (1-4): ")
+            choice = input("Choice? (1-4): ")
         except (KeyboardInterrupt, EOFError):
             return
-        if choise == "1":
+        if choice == "1":
             maze_gen.generate_data()
-            maze_gen.clear_terminal()
             maze_gen.print_board()
             maze_gen.generate_output()
-        elif choise == "2":
+        elif choice == "2":
             maze_gen.toggle_path()
-        elif choise == "3":
+            maze_gen.print_board()
+        elif choice == "3":
             maze_gen.rotate_wall_colour()
-        elif choise == "4":
+            maze_gen.print_board()
+        elif choice == "4":
             exit(0)
         else:
             print("Invalid input. Try again.")

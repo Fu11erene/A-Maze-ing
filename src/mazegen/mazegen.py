@@ -192,14 +192,20 @@ class MazeGenerator:
             for x, cell in enumerate(row):
                 if (self.path is not None and
                         self.show_path and (x, y) in self.path):
-                    print(self.wall_list[3], end="")
+                    print(
+                        self.wall_list[(self.wall_colour_offset + 1)
+                                       % len(self.wall_list)], end="")
                     continue
 
                 match cell:
                     case FillStatus.entry:
-                        print(self.wall_list[1], end="")
+                        print(
+                            self.wall_list[(self.wall_colour_offset + 2)
+                                           % len(self.wall_list)], end="")
                     case FillStatus.exit:
-                        print(self.wall_list[2], end="")
+                        print(
+                            self.wall_list[(self.wall_colour_offset + 3)
+                                           % len(self.wall_list)], end="")
                     case FillStatus.wall:
                         print(self.wall_list[self.wall_colour_offset], end="")
                     case FillStatus.wall_42:
@@ -217,14 +223,14 @@ class MazeGenerator:
         board = self.board
         start = self.config.entry
         goal = self.config.exit
-        rows = self._ARR_HEIGHT
-        cols = self._ARR_WIDTH
+        HEIGHT = self._ARR_HEIGHT
+        WIDTH = self._ARR_WIDTH
 
         directions = [(0, -1), (0, 1), (-1, 0), (1, 0)]
 
-        visited = [[False] * cols for _ in range(rows)]
+        visited = [[False] * WIDTH for _ in range(HEIGHT)]
         prev: list[list[Optional[Coordinate]]] = [
-            [None] * cols for _ in range(rows)]
+            [None] * WIDTH for _ in range(HEIGHT)]
         queue: deque[Coordinate] = deque()
         start_x, start_y = start[0] * 2 + 1, start[1] * 2 + 1
         goal_x, goal_y = goal[0] * 2 + 1, goal[1] * 2 + 1
@@ -246,7 +252,7 @@ class MazeGenerator:
             for dx, dy in directions:
                 nx, ny = x + dx, y + dy
                 # 条件式の分割を検討
-                if 0 <= ny < rows and 0 <= nx < cols:
+                if 0 <= ny < HEIGHT and 0 <= nx < WIDTH:
                     if (board is not None and board[ny][nx] != FillStatus.wall
                             and not visited[ny][nx]):
                         visited[ny][nx] = True
@@ -312,4 +318,4 @@ class MazeGenerator:
 
     def rotate_wall_colour(self) -> None:
         self.wall_colour_offset = (
-            self.wall_colour_offset + 2) % len(self.wall_list)
+            self.wall_colour_offset + 1) % len(self.wall_list)

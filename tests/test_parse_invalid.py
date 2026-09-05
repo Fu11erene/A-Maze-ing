@@ -27,7 +27,7 @@ VALID_LINES = {
 }
 
 
-def build_config(**overrides: str) -> str:
+def build_config(**overrides: Optional[str]) -> str:
     """Build config text from the valid baseline, applying overrides.
 
     Passing None for a key removes that line entirely (simulating a
@@ -35,7 +35,7 @@ def build_config(**overrides: str) -> str:
     """
     lines = dict(VALID_LINES)
     for key, value in overrides.items():
-        if value == "":
+        if value is None:
             lines.pop(key, None)
         else:
             lines[key] = value

@@ -86,7 +86,7 @@ class MazeGenerator:
         """
         行き止まりになっているセル(開口部が1つしかないセル)の座標一覧を返す
         """
-        dead_ends = []
+        dead_ends: list[Coordinate] = []
         for y in range(1, self._ARR_HEIGHT, 2):
             for x in range(1, self._ARR_WIDTH, 2):
                 walls = (board[y - 1][x], board[y][x + 1],
@@ -101,7 +101,7 @@ class MazeGenerator:
         隣接するセルと繋げることで、迷路からループを作り行き止まりをなくす
         """
         for x, y in self._dead_ends(board):
-            candidates = []
+            candidates: list[Coordinate] = []
             for wx, wy, nx, ny in (
                 (x, y - 1, x, y - 2),
                 (x + 1, y, x + 2, y),

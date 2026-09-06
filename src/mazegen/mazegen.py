@@ -264,7 +264,6 @@ class MazeGenerator:
 
             for dx, dy in directions:
                 nx, ny = x + dx, y + dy
-                # 条件式の分割を検討
                 if 0 <= ny < HEIGHT and 0 <= nx < WIDTH:
                     if (board is not None
                             and board[ny][nx] != FillStatus.wall

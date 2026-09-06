@@ -8,3 +8,5 @@ en.subject.pdf
 !config.txt
 maze.txt
 .DS_Store
+maze_analyzer.py
+mlx-*-py3-none-any.whl

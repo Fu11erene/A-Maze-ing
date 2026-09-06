@@ -2,11 +2,11 @@ import sys
 import random
 from typing import Optional
 from ..types import FillStatus, Coordinate, Board, Direction
-from .mazegen import MazeGenerator
+from .mazegen import MazeGenerator, Config
 
 
 class RecursiveMazeGenerator(MazeGenerator):
-    def __init__(self, config):
+    def __init__(self, config: Config) -> None:
         super().__init__(config)
         sys.setrecursionlimit(5000)
 

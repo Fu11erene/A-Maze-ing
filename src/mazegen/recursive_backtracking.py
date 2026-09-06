@@ -1,3 +1,4 @@
+import sys
 import random
 from typing import Optional
 from ..types import FillStatus, Coordinate, Board, Direction
@@ -5,6 +6,10 @@ from .mazegen import MazeGenerator
 
 
 class RecursiveMazeGenerator(MazeGenerator):
+    def __init__(self, config):
+        super().__init__(config)
+        sys.setrecursionlimit(5000)
+
     def _generate_board(self) -> Board:
         """
         穴掘り法でボードを生成する
@@ -57,12 +62,6 @@ class RecursiveMazeGenerator(MazeGenerator):
         for dir in directions:
             new_pos = possible_dir[dir]
             if self._is_diggable(new_pos):
-                num = random.randint(1, 30)
-                if num <= 2:
-                    break
-                elif dir == prev_dir and num <= 3:
-                    continue
-
                 new_x, new_y = new_pos
                 self.board[int((y + new_y) / 2)
                            ][int((x + new_x) / 2)] = FillStatus.empty

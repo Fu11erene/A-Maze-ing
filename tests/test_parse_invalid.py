@@ -8,6 +8,7 @@ must handle all errors gracefully ... It must never crash unexpectedly").
 
 import sys
 from pathlib import Path
+from typing import Optional, Any
 
 import pytest
 
@@ -26,7 +27,7 @@ VALID_LINES = {
 }
 
 
-def build_config(**overrides: str) -> str:
+def build_config(**overrides: Optional[str]) -> str:
     """Build config text from the valid baseline, applying overrides.
 
     Passing None for a key removes that line entirely (simulating a
@@ -41,7 +42,7 @@ def build_config(**overrides: str) -> str:
     return "\n".join(lines.values()) + "\n"
 
 
-def run_arg_parse(tmp_path: Path, content: str) -> pytest.ExceptionInfo:
+def run_arg_parse(tmp_path: Path, content: str) -> pytest.ExceptionInfo[SystemExit]:
     config_file = tmp_path / "config.txt"
     config_file.write_text(content)
     sys.argv = ["a_maze_ing.py", str(config_file)]
@@ -50,7 +51,7 @@ def run_arg_parse(tmp_path: Path, content: str) -> pytest.ExceptionInfo:
     return exc_info
 
 
-INVALID_CASES = [
+INVALID_CASES: list[tuple[str, dict[str, Optional[str]]]] = [
     # --- Missing mandatory keys ---
     ("missing_width", dict(WIDTH=None)),
     ("missing_height", dict(HEIGHT=None)),
@@ -418,7 +419,7 @@ assert len(INVALID_CASES) == 313, f"expected 313 cases, got {len(INVALID_CASES)}
     "overrides", [case for _, case in INVALID_CASES],
     ids=[name for name, _ in INVALID_CASES],
 )
-def test_invalid_config_exits_with_error(tmp_path: Path, overrides: dict) -> None:
+def test_invalid_config_exits_with_error(tmp_path: Path, overrides: dict[Any, Any]) -> None:
     content = build_config(**overrides)
     exc_info = run_arg_parse(tmp_path, content)
     assert exc_info.value.code == 1

@@ -66,7 +66,6 @@ class RecursiveMazeGenerator(MazeGenerator):
             if self._is_diggable(new_pos):
                 new_x, new_y = new_pos
                 self.board[int((y + new_y) / 2)
-                            ][int((x + new_x) / 2)] = FillStatus.empty
+                           ][int((x + new_x) / 2)] = FillStatus.empty
                 self.board[new_y][new_x] = FillStatus.empty
-                self.print_board()
                 self._dig(new_pos)

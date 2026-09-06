@@ -1,7 +1,7 @@
 #!/bin/usr/env python3
 
 from src.parser import arg_parse
-from src.mazegen import BinaryTreeMazeGenerator, RecursiveMazeGenerator
+from src.mazegen import RecursiveMazeGenerator
 from src.visualizer import visualize
 
 

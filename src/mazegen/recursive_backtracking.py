@@ -58,9 +58,9 @@ class RecursiveMazeGenerator(MazeGenerator):
             new_pos = possible_dir[dir]
             if self._is_diggable(new_pos):
                 num = random.randint(1, 30)
-                if num <= 1:
+                if num <= 2:
                     break
-                elif dir == prev_dir and num <= 2:
+                elif dir == prev_dir and num <= 3:
                     continue
 
                 new_x, new_y = new_pos

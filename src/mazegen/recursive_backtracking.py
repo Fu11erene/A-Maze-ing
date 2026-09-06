@@ -1,4 +1,6 @@
-from ..types import FillStatus, Coordinate, Board
+import random
+from typing import Optional
+from ..types import FillStatus, Coordinate, Board, Direction
 from .mazegen import MazeGenerator
 
 
@@ -17,7 +19,7 @@ class RecursiveMazeGenerator(MazeGenerator):
         self._fill_42_pattern()
 
         self.board[ent_y][ent_x] = FillStatus.empty
-        self._dig((ent_x, ent_y))
+        self._dig((ent_x, ent_y), None)
         self.board[ent_y][ent_x] = FillStatus.entry
         self.board[ext_y * 2 + 1][ext_x * 2 + 1] = FillStatus.exit
 
@@ -35,37 +37,34 @@ class RecursiveMazeGenerator(MazeGenerator):
             return False
         return board[y][x] == FillStatus.wall
 
-    def _dig(self, pos: Coordinate) -> None:
+    def _dig(self, pos: Coordinate, prev_dir: Optional[Direction]) -> None:
         """
         どちらの向きに棒を倒すのか判断する
         """
         x, y = pos
         if self.board is None:
             raise Exception()
-        # while True:
-            # possible_dir: dict[Direction, Coordinate] = {
-            #     Direction.up: (x + 2, y),
-            #     Direction.right: (x - 2, y),
-            #     Direction.down: (x, y + 2),
-            #     Direction.left: (x, y - 2),
-            # }
-        next_poss = [(x + 2, y),
-                        (x - 2, y),
-                        (x, y + 2),
-                        (x, y - 2),]
-        possible_pos: list[Coordinate] = []
-        
-        for value in next_poss:
-            if self._is_diggable(value):
-                possible_pos.append(value)
-        if len(possible_pos) == 0:
-            print("Dead end. Returning...")
-            return
-        # ランダムにnext_possをシャッフルする
-        for new_pos in next_poss:
+        possible_dir: dict[Direction, Coordinate] = {
+            Direction.up: (x + 2, y),
+            Direction.right: (x - 2, y),
+            Direction.down: (x, y + 2),
+            Direction.left: (x, y - 2),
+        }
+        directions = [Direction.up, Direction.right,
+                      Direction.down, Direction.left]
+
+        random.shuffle(directions)
+        for dir in directions:
+            new_pos = possible_dir[dir]
             if self._is_diggable(new_pos):
+                num = random.randint(1, 30)
+                if num <= 1:
+                    break
+                elif dir == prev_dir and num <= 2:
+                    continue
+
                 new_x, new_y = new_pos
                 self.board[int((y + new_y) / 2)
                            ][int((x + new_x) / 2)] = FillStatus.empty
                 self.board[new_y][new_x] = FillStatus.empty
-                self._dig(new_pos)
+                self._dig(new_pos, dir)

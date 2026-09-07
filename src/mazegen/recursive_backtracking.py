@@ -5,11 +5,13 @@ from ..types import FillStatus, Coordinate, Board, Direction
 from .mazegen import MazeGenerator
 from ..parser import Config
 
+RECURSION_LIMIT = 10000
 
 class RecursiveMazeGenerator(MazeGenerator):
     def __init__(self, config: Config) -> None:
         super().__init__(config)
-        sys.setrecursionlimit(5000)
+        if sys.getrecursionlimit() < RECURSION_LIMIT:
+            sys.setrecursionlimit(RECURSION_LIMIT)
 
     def _generate_board(self) -> Board:
         """

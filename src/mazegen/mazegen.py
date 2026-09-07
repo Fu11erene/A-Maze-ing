@@ -93,7 +93,7 @@ class MazeGenerator:
         for (dx, dy) in FT_PATTERNS:
             x, y = (MID_X + dx, MID_Y + dy)
             if board[y][x] is not FillStatus.wall:
-                raise PatternConflictError("Entry or/and exit conflicts with the 42 pattern.")
+                raise PatternConflictError("ENTRY or/and EXIT conflicts with the 42 pattern.")
             for ay in range(-1, 2):
                 for ax in range(-1, 2):
                     board[y + ay][x + ax] = FillStatus.wall_42

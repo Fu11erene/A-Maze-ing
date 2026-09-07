@@ -97,7 +97,7 @@ class MazeGenerator(ABC):
             for ay in range(-1, 2):
                 for ax in range(-1, 2):
                     board[y + ay][x + ax] = FillStatus.wall_42
-            board[y][x] = FillStatus.empty
+            board[y][x] = FillStatus.wall_42_empty
 
     def _reconstruct_path(
         self,
@@ -206,7 +206,6 @@ class MazeGenerator(ABC):
         result = ""
         for y in range(1, self._ARR_HEIGHT - 1, 2):
             for x in range(1, self._ARR_WIDTH - 1, 2):
-                # current_cell = self.board[row][col]
                 north = self.board[y-1][x] is not FillStatus.empty
                 east = self.board[y][x+1] is not FillStatus.empty
                 south = self.board[y+1][x] is not FillStatus.empty
@@ -277,6 +276,8 @@ class MazeGenerator(ABC):
                         print(self.wall_list[self.wall_colour_offset], end="")
                     case FillStatus.wall_42:
                         print("42", end="")
+                    case FillStatus.wall_42_empty:
+                        print("\\\\", end="")
                     case _:
                         print("  ", end="")
 

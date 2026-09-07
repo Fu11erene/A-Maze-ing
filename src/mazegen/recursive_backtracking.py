@@ -2,7 +2,8 @@ import sys
 import random
 from typing import Optional
 from ..types import FillStatus, Coordinate, Board, Direction
-from .mazegen import MazeGenerator, Config
+from .mazegen import MazeGenerator
+from ..parser import Config
 
 
 class RecursiveMazeGenerator(MazeGenerator):

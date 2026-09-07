@@ -93,7 +93,8 @@ class MazeGenerator:
         for (dx, dy) in FT_PATTERNS:
             x, y = (MID_X + dx, MID_Y + dy)
             if board[y][x] is not FillStatus.wall:
-                raise PatternConflictError("'ENTRY' or/and 'EXIT' conflicts with the 42 pattern.")
+                raise PatternConflictError(
+                    "'ENTRY' or/and 'EXIT' conflicts with the 42 pattern.")
             for ay in range(-1, 2):
                 for ax in range(-1, 2):
                     board[y + ay][x + ax] = FillStatus.wall_42
@@ -243,18 +244,19 @@ class MazeGenerator:
         HEIGHT = self._ARR_HEIGHT
         ent_x = self.config.entry[0] * 2 + 1
         ent_y = self.config.entry[1] * 2 + 1
-        ext_x, ext_y = self.config.exit
+        ext_x = self.config.exit[0] * 2 + 1
+        ext_y = self.config.exit[1] * 2 + 1
         self.board = [
             [FillStatus.wall for _ in range(WIDTH)] for _ in range(HEIGHT)]
         self.board[ent_y][ent_x] = FillStatus.entry
-        self.board[ext_y * 2 + 1][ext_x * 2 + 1] = FillStatus.exit
+        self.board[ext_y][ext_x] = FillStatus.exit
         self._fill_42_pattern()
-        self.board[ext_y * 2 + 1][ext_x * 2 + 1] = FillStatus.wall
+        self.board[ext_y][ext_x] = FillStatus.wall
 
         self.board[ent_y][ent_x] = FillStatus.empty
         self._carve((ent_x, ent_y), None)
         self.board[ent_y][ent_x] = FillStatus.entry
-        self.board[ext_y * 2 + 1][ext_x * 2 + 1] = FillStatus.exit
+        self.board[ext_y][ext_x] = FillStatus.exit
 
         return self.board
 

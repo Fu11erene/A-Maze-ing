@@ -1,12 +1,15 @@
 import random
-from abc import ABC, abstractmethod
+import sys
 from collections import deque
 from typing import Optional
 from ..parser import Config
-from ..types import FillStatus, Board, Coordinate
+from ..types import Board, Coordinate, Direction, FillStatus
 
 
-class MazeGenerator(ABC):
+RECURSION_LIMIT = 10000
+
+
+class MazeGenerator:
     """
     迷路を生成するジェネレーター
     """
@@ -23,6 +26,8 @@ class MazeGenerator(ABC):
         self.show_path = False
         self.path_direction = ""
         random.seed(config.seed)
+        if sys.getrecursionlimit() < RECURSION_LIMIT:
+            sys.setrecursionlimit(RECURSION_LIMIT)
 
     def _dead_ends(self, board: Board) -> list[Coordinate]:
         """
@@ -232,9 +237,63 @@ class MazeGenerator(ABC):
             f.write(self.path_direction)
             f.write("\n")
 
-    @abstractmethod
     def _generate_board(self) -> Board:
-        pass
+        """
+        穴掘り法でボードを生成する
+        """
+        WIDTH = self._ARR_WIDTH
+        HEIGHT = self._ARR_HEIGHT
+        ent_x = self.config.entry[0] * 2 + 1
+        ent_y = self.config.entry[1] * 2 + 1
+        ext_x, ext_y = self.config.exit
+        self.board = [
+            [FillStatus.wall for _ in range(WIDTH)] for _ in range(HEIGHT)]
+        self._fill_42_pattern()
+
+        self.board[ent_y][ent_x] = FillStatus.empty
+        self._carve((ent_x, ent_y), None)
+        self.board[ent_y][ent_x] = FillStatus.entry
+        self.board[ext_y * 2 + 1][ext_x * 2 + 1] = FillStatus.exit
+
+        return self.board
+
+    def _is_carveable(self, pos: Coordinate) -> bool:
+        x, y = pos
+        if self.board is None:
+            raise Exception(
+                "Cannot fill 42 pattern: "
+                "The Board has not been initalized yet.")
+        board: Board = self.board
+        if x < 0 or y < 0 \
+                or x >= self._ARR_WIDTH or y >= self._ARR_HEIGHT:
+            return False
+        return board[y][x] == FillStatus.wall
+
+    def _carve(self, pos: Coordinate, prev_dir: Optional[Direction]) -> None:
+        """
+        どちらの向きに棒を倒すのか判断する
+        """
+        x, y = pos
+        if self.board is None:
+            raise Exception()
+        possible_dir: dict[Direction, Coordinate] = {
+            Direction.up: (x + 2, y),
+            Direction.right: (x - 2, y),
+            Direction.down: (x, y + 2),
+            Direction.left: (x, y - 2),
+        }
+        directions = [Direction.up, Direction.right,
+                      Direction.down, Direction.left]
+
+        random.shuffle(directions)
+        for dir in directions:
+            new_pos = possible_dir[dir]
+            if self._is_carveable(new_pos):
+                new_x, new_y = new_pos
+                self.board[int((y + new_y) / 2)
+                           ][int((x + new_x) / 2)] = FillStatus.empty
+                self.board[new_y][new_x] = FillStatus.empty
+                self._carve(new_pos, dir)
 
     def generate_data(self) -> None:
         """

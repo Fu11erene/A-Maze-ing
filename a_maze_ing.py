@@ -7,9 +7,11 @@ from src.visualizer import visualize
 
 def main() -> None:
     config = arg_parse()
-    print(config)
     maze_gen = MazeGenerator(config=config)
-    visualize(maze_gen)
+    try:
+        visualize(maze_gen)
+    except ValueError as e:
+        print(f"{e.__class__.__name__}: {e}")
 
 
 if __name__ == "__main__":

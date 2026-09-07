@@ -4,6 +4,7 @@ from collections import deque
 from typing import Optional
 from ..parser import Config
 from ..types import Board, Coordinate, Direction, FillStatus
+from ..errors import BoardUninitializedError, PatternConflictError
 
 
 RECURSION_LIMIT = 10000
@@ -83,7 +84,7 @@ class MazeGenerator:
         board = self.board
 
         if board is None:
-            raise Exception(
+            raise BoardUninitializedError(
                 "Cannot fill 42 pattern: "
                 "The Board has not been initalized yet.")
         elif not self.is_42_renderable():
@@ -92,7 +93,7 @@ class MazeGenerator:
         for (dx, dy) in FT_PATTERNS:
             x, y = (MID_X + dx, MID_Y + dy)
             if board[y][x] is not FillStatus.wall:
-                raise Exception("Not empty")
+                raise PatternConflictError("Not empty")
             for ay in range(-1, 2):
                 for ax in range(-1, 2):
                     board[y + ay][x + ax] = FillStatus.wall_42
@@ -202,7 +203,7 @@ class MazeGenerator:
         課題で求められている迷路の部分についてのファイルの文字列を構成する
         """
         if self.board is None:
-            raise Exception(
+            raise BoardUninitializedError(
                 "Cannot generate outstr: "
                 "The Board has not been initalized yet.")
         result = ""
@@ -260,7 +261,7 @@ class MazeGenerator:
     def _is_carveable(self, pos: Coordinate) -> bool:
         x, y = pos
         if self.board is None:
-            raise Exception(
+            raise BoardUninitializedError(
                 "Cannot fill 42 pattern: "
                 "The Board has not been initalized yet.")
         board: Board = self.board
@@ -275,7 +276,9 @@ class MazeGenerator:
         """
         x, y = pos
         if self.board is None:
-            raise Exception()
+            raise BoardUninitializedError(
+                "Cannot fill 42 pattern: "
+                "The Board has not been initalized yet.")
         possible_dir: dict[Direction, Coordinate] = {
             Direction.up: (x + 2, y),
             Direction.right: (x - 2, y),
@@ -317,7 +320,8 @@ class MazeGenerator:
         盤面を出力
         """
         if self.board is None:
-            raise Exception("The Board has not been initialized yet.")
+            raise BoardUninitializedError(
+                "The Board has not been initialized yet.")
         self._clear_terminal()
         for y, row in enumerate(self.board):
             for x, cell in enumerate(row):

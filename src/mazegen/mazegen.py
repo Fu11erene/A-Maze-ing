@@ -1,8 +1,12 @@
 import random
+import sys
 from collections import deque
 from typing import Optional
 from ..parser import Config
-from ..types import FillStatus, Direction, Board, Coordinate
+from ..types import Board, Coordinate, Direction, FillStatus
+
+
+RECURSION_LIMIT = 10000
 
 
 class MazeGenerator:
@@ -22,65 +26,8 @@ class MazeGenerator:
         self.show_path = False
         self.path_direction = ""
         random.seed(config.seed)
-
-    @classmethod
-    def _decide_stick(cls, x: int, y: int, board: Board) -> None:
-        """
-        どちらの向きに棒を倒すのか判断する
-        """
-        possible_dir: dict[Direction, bool] = {
-            Direction.up: False,
-            Direction.right: True,
-            Direction.down: True,
-            Direction.left: True,
-        }
-        if y == 2:
-            possible_dir[Direction.up] = True
-        if board[y][x + 1] is not FillStatus.empty:
-            possible_dir[Direction.right] = False
-        if board[y][x - 1] is not FillStatus.empty:
-            possible_dir[Direction.left] = False
-        if board[y + 1][x] is not FillStatus.empty:
-            possible_dir[Direction.down] = False
-        if board[y - 1][x] is not FillStatus.empty:
-            possible_dir[Direction.up] = False
-
-        possible_dirs = 0
-        for _, value in possible_dir.items():
-            if value:
-                possible_dirs += 1
-        if possible_dirs == 0:
-            print("Exception: No directions to dig. Skipping.")
-            return
-        dir = random.randint(0, possible_dirs - 1)
-        di = 0
-        for key, value in possible_dir.items():
-            if value:
-                if di == dir:
-                    cls._take_down_stick(x, y, board, key)
-                    return
-                else:
-                    di += 1
-
-    @staticmethod
-    def _take_down_stick(x: int, y: int, board: Board, direction: Direction
-                         ) -> None:
-        """
-        棒を実際に倒す処理
-
-        - 1行目なら上下左右
-        - 2行目以降なら下と左右、ただし四方を壁に囲われて使わないマスができないようにする
-        """
-        if direction == Direction.up:
-            board[y - 1][x] = FillStatus.wall
-        elif direction == Direction.down:
-            board[y + 1][x] = FillStatus.wall
-        elif direction == Direction.left:
-            board[y][x - 1] = FillStatus.wall
-        elif direction == Direction.right:
-            board[y][x + 1] = FillStatus.wall
-        else:
-            raise ValueError("Unknown direction: got", direction)
+        if sys.getrecursionlimit() < RECURSION_LIMIT:
+            sys.setrecursionlimit(RECURSION_LIMIT)
 
     def _dead_ends(self, board: Board) -> list[Coordinate]:
         """
@@ -116,18 +63,21 @@ class MazeGenerator:
                 wx, wy = random.choice(candidates)
                 board[wy][wx] = FillStatus.empty
 
+    def is_42_renderable(self) -> bool:
+        return self.config.width > 10 and self.config.height > 8
+
     def _fill_42_pattern(self) -> None:
         C_WIDTH, C_HEIGHT = self.config.width, self.config.height
         MID_X = C_WIDTH + C_WIDTH % 2 - 1
         MID_Y = C_HEIGHT + C_HEIGHT % 2 - 1
         board = self.board
 
-        if self.config.width <= 10 or self.config.height <= 8:
-            return
-        elif board is None:
+        if board is None:
             raise Exception(
                 "Cannot fill 42 pattern: "
                 "The Board has not been initalized yet.")
+        elif not self.is_42_renderable():
+            return
 
         for (x, y) in (
             (MID_X - 6, MID_Y - 4),
@@ -152,35 +102,7 @@ class MazeGenerator:
             for ay in range(-1, 2):
                 for ax in range(-1, 2):
                     board[y + ay][x + ax] = FillStatus.wall_42
-            board[y][x] = FillStatus.empty
-
-    def _generate_board(self) -> Board:
-        """
-        棒倒し法でボードを生成する
-        """
-        WIDTH = self._ARR_WIDTH
-        HEIGHT = self._ARR_HEIGHT
-        ent_x, ent_y = self.config.entry
-        ext_x, ext_y = self.config.exit
-        board: Board = [
-            [FillStatus.empty for _ in range(WIDTH)] for _ in range(HEIGHT)]
-        self.board = board
-        # self._fill_42_pattern()
-
-        board[ent_y * 2 + 1][ent_x * 2 + 1] = FillStatus.entry
-        board[ext_y * 2 + 1][ext_x * 2 + 1] = FillStatus.exit
-
-        for y in range(HEIGHT):
-            for x in range(WIDTH):
-                if board[y][x] is FillStatus.wall_42:
-                    continue
-                elif y == 0 or y == HEIGHT - 1 or x == 0 or x == WIDTH - 1:
-                    board[y][x] = FillStatus.wall
-                elif y % 2 == 0 and x % 2 == 0:
-                    board[y][x] = FillStatus.wall
-                    self._decide_stick(x, y, board)
-
-        return board
+            board[y][x] = FillStatus.wall_42_empty
 
     def _reconstruct_path(
         self,
@@ -289,7 +211,6 @@ class MazeGenerator:
         result = ""
         for y in range(1, self._ARR_HEIGHT - 1, 2):
             for x in range(1, self._ARR_WIDTH - 1, 2):
-                # current_cell = self.board[row][col]
                 north = self.board[y-1][x] is not FillStatus.empty
                 east = self.board[y][x+1] is not FillStatus.empty
                 south = self.board[y+1][x] is not FillStatus.empty
@@ -315,6 +236,64 @@ class MazeGenerator:
             f.write("\n")
             f.write(self.path_direction)
             f.write("\n")
+
+    def _generate_board(self) -> Board:
+        """
+        穴掘り法でボードを生成する
+        """
+        WIDTH = self._ARR_WIDTH
+        HEIGHT = self._ARR_HEIGHT
+        ent_x = self.config.entry[0] * 2 + 1
+        ent_y = self.config.entry[1] * 2 + 1
+        ext_x, ext_y = self.config.exit
+        self.board = [
+            [FillStatus.wall for _ in range(WIDTH)] for _ in range(HEIGHT)]
+        self._fill_42_pattern()
+
+        self.board[ent_y][ent_x] = FillStatus.empty
+        self._carve((ent_x, ent_y), None)
+        self.board[ent_y][ent_x] = FillStatus.entry
+        self.board[ext_y * 2 + 1][ext_x * 2 + 1] = FillStatus.exit
+
+        return self.board
+
+    def _is_carveable(self, pos: Coordinate) -> bool:
+        x, y = pos
+        if self.board is None:
+            raise Exception(
+                "Cannot fill 42 pattern: "
+                "The Board has not been initalized yet.")
+        board: Board = self.board
+        if x < 0 or y < 0 \
+                or x >= self._ARR_WIDTH or y >= self._ARR_HEIGHT:
+            return False
+        return board[y][x] == FillStatus.wall
+
+    def _carve(self, pos: Coordinate, prev_dir: Optional[Direction]) -> None:
+        """
+        どちらの向きに棒を倒すのか判断する
+        """
+        x, y = pos
+        if self.board is None:
+            raise Exception()
+        possible_dir: dict[Direction, Coordinate] = {
+            Direction.up: (x + 2, y),
+            Direction.right: (x - 2, y),
+            Direction.down: (x, y + 2),
+            Direction.left: (x, y - 2),
+        }
+        directions = [Direction.up, Direction.right,
+                      Direction.down, Direction.left]
+
+        random.shuffle(directions)
+        for dir in directions:
+            new_pos = possible_dir[dir]
+            if self._is_carveable(new_pos):
+                new_x, new_y = new_pos
+                self.board[int((y + new_y) / 2)
+                           ][int((x + new_x) / 2)] = FillStatus.empty
+                self.board[new_y][new_x] = FillStatus.empty
+                self._carve(new_pos, dir)
 
     def generate_data(self) -> None:
         """
@@ -356,6 +335,8 @@ class MazeGenerator:
                         print(self.wall_list[self.wall_colour_offset], end="")
                     case FillStatus.wall_42:
                         print("42", end="")
+                    case FillStatus.wall_42_empty:
+                        print("\\\\", end="")
                     case _:
                         print("  ", end="")
 

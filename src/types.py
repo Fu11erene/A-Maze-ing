@@ -8,8 +8,9 @@ class FillStatus(Enum):
     empty = 0
     wall = 1
     wall_42 = 2
-    entry = 3
-    exit = 4
+    wall_42_empty = 3
+    entry = 4
+    exit = 5
 
 
 class Direction(Enum):

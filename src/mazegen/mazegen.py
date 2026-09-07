@@ -58,18 +58,21 @@ class MazeGenerator(ABC):
                 wx, wy = random.choice(candidates)
                 board[wy][wx] = FillStatus.empty
 
+    def is_42_renderable(self) -> bool:
+        return self.config.width > 10 and self.config.height > 8
+
     def _fill_42_pattern(self) -> None:
         C_WIDTH, C_HEIGHT = self.config.width, self.config.height
         MID_X = C_WIDTH + C_WIDTH % 2 - 1
         MID_Y = C_HEIGHT + C_HEIGHT % 2 - 1
         board = self.board
 
-        if self.config.width <= 10 or self.config.height <= 8:
-            return
-        elif board is None:
+        if board is None:
             raise Exception(
                 "Cannot fill 42 pattern: "
                 "The Board has not been initalized yet.")
+        elif not self.is_42_renderable():
+            return
 
         for (x, y) in (
             (MID_X - 6, MID_Y - 4),

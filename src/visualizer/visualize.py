@@ -17,6 +17,8 @@ def visualize(maze_gen: MazeGenerator) -> None:
     maze_gen.generate_data()
     maze_gen.print_board()
     maze_gen.generate_output()
+    if not maze_gen.is_42_renderable():
+        print("WARN: Ommiting 42 pattern due to its size.")
     _print_operations()
 
     while True:

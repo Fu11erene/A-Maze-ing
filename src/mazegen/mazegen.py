@@ -18,6 +18,7 @@ class MazeGenerator:
         self.config = config
         self.board: Optional[Board] = None
         self.wall_colour_offset = 0
+        # 壁の色は白、赤、緑、青、茶(42のterminal環境では)
         self.wall_list = ["██", "\033[31m██\033[0m", "\033[32m██\033[0m",
                           "\033[34m██\033[0m", "\033[33m██\033[0m"]
         self._ARR_WIDTH = self.config.width * 2 + 1
@@ -198,6 +199,9 @@ class MazeGenerator:
         return None, ""
 
     def _clear_terminal(self) -> None:
+        """
+        左上にカーソルを移動して(\033[H)画面をクリア(\033[J)する
+        """
         print("\033[H\033[J", end="")
 
     def _generate_outstr(self) -> str:
@@ -306,6 +310,12 @@ class MazeGenerator:
         self.path, self.path_direction = self._solve_with_bfs()
         self.show_path = False
 
+    def _select_wall_color(self, step) -> int:
+        """
+        stepだけ次の壁の色の添字を返す
+        """
+        return (self.wall_colour_offset + step) % len(self.wall_list)
+
     def print_board(self) -> None:
         """
         盤面を出力
@@ -318,19 +328,16 @@ class MazeGenerator:
                 if (self.path is not None and
                         self.show_path and (x, y) in self.path):
                     print(
-                        self.wall_list[(self.wall_colour_offset + 1)
-                                       % len(self.wall_list)], end="")
+                        self.wall_list[self._select_wall_color(1)], end="")
                     continue
 
                 match cell:
                     case FillStatus.entry:
                         print(
-                            self.wall_list[(self.wall_colour_offset + 2)
-                                           % len(self.wall_list)], end="")
+                            self.wall_list[self._select_wall_color(2)], end="")
                     case FillStatus.exit:
                         print(
-                            self.wall_list[(self.wall_colour_offset + 3)
-                                           % len(self.wall_list)], end="")
+                            self.wall_list[self._select_wall_color(3)], end="")
                     case FillStatus.wall:
                         print(self.wall_list[self.wall_colour_offset], end="")
                     case FillStatus.wall_42:
@@ -346,8 +353,7 @@ class MazeGenerator:
         """
         壁の色を変える
         """
-        self.wall_colour_offset = (
-            self.wall_colour_offset + 1) % len(self.wall_list)
+        self.wall_colour_offset = self._select_wall_color(1)
 
     def toggle_path(self) -> None:
         """

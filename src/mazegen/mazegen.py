@@ -4,6 +4,7 @@ from collections import deque
 from typing import Optional
 from ..parser import Config
 from ..types import Board, Coordinate, Direction, FillStatus
+from ..errors import BoardUninitializedError, PatternConflictError
 
 
 RECURSION_LIMIT = 10000
@@ -83,7 +84,7 @@ class MazeGenerator:
         board = self.board
 
         if board is None:
-            raise Exception(
+            raise BoardUninitializedError(
                 "Cannot fill 42 pattern: "
                 "The Board has not been initalized yet.")
         elif not self.is_42_renderable():
@@ -91,6 +92,9 @@ class MazeGenerator:
 
         for (dx, dy) in FT_PATTERNS:
             x, y = (MID_X + dx, MID_Y + dy)
+            if board[y][x] is not FillStatus.wall:
+                raise PatternConflictError(
+                    "'ENTRY' or/and 'EXIT' conflicts with the 42 pattern.")
             for ay in range(-1, 2):
                 for ax in range(-1, 2):
                     board[y + ay][x + ax] = FillStatus.wall_42
@@ -200,7 +204,7 @@ class MazeGenerator:
         課題で求められている迷路の部分についてのファイルの文字列を構成する
         """
         if self.board is None:
-            raise Exception(
+            raise BoardUninitializedError(
                 "Cannot generate outstr: "
                 "The Board has not been initalized yet.")
         result = ""
@@ -240,22 +244,26 @@ class MazeGenerator:
         HEIGHT = self._ARR_HEIGHT
         ent_x = self.config.entry[0] * 2 + 1
         ent_y = self.config.entry[1] * 2 + 1
-        ext_x, ext_y = self.config.exit
+        ext_x = self.config.exit[0] * 2 + 1
+        ext_y = self.config.exit[1] * 2 + 1
         self.board = [
             [FillStatus.wall for _ in range(WIDTH)] for _ in range(HEIGHT)]
+        self.board[ent_y][ent_x] = FillStatus.entry
+        self.board[ext_y][ext_x] = FillStatus.exit
         self._fill_42_pattern()
+        self.board[ext_y][ext_x] = FillStatus.wall
 
         self.board[ent_y][ent_x] = FillStatus.empty
         self._carve((ent_x, ent_y), None)
         self.board[ent_y][ent_x] = FillStatus.entry
-        self.board[ext_y * 2 + 1][ext_x * 2 + 1] = FillStatus.exit
+        self.board[ext_y][ext_x] = FillStatus.exit
 
         return self.board
 
     def _is_carveable(self, pos: Coordinate) -> bool:
         x, y = pos
         if self.board is None:
-            raise Exception(
+            raise BoardUninitializedError(
                 "Cannot fill 42 pattern: "
                 "The Board has not been initalized yet.")
         board: Board = self.board
@@ -270,7 +278,9 @@ class MazeGenerator:
         """
         x, y = pos
         if self.board is None:
-            raise Exception()
+            raise BoardUninitializedError(
+                "Cannot fill 42 pattern: "
+                "The Board has not been initalized yet.")
         possible_dir: dict[Direction, Coordinate] = {
             Direction.up: (x + 2, y),
             Direction.right: (x - 2, y),
@@ -312,7 +322,8 @@ class MazeGenerator:
         盤面を出力
         """
         if self.board is None:
-            raise Exception("The Board has not been initialized yet.")
+            raise BoardUninitializedError(
+                "The Board has not been initialized yet.")
         self._clear_terminal()
         for y, row in enumerate(self.board):
             for x, cell in enumerate(row):

@@ -28,7 +28,7 @@ class Config(BaseModel):
     @classmethod
     def _to_int(cls, value: str) -> int:
         if "." in value:
-            raise ValueError("Input should be a valid integer")
+            raise ParseError("Input should be a valid integer")
         return int(value)
 
     @field_validator('width', 'height', mode='before')

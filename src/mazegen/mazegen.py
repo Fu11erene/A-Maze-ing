@@ -49,7 +49,8 @@ class MazeGenerator:
             for x in range(1, self._ARR_WIDTH, 2):
                 walls = (board[y - 1][x], board[y][x + 1],
                          board[y + 1][x], board[y][x - 1])
-                if walls.count(FillStatus.wall) + walls.count(FillStatus.wall_42) == 3:
+                if walls.count(FillStatus.wall) + \
+                        walls.count(FillStatus.wall_42) == 3:
                     dead_ends.append((x, y))
         return dead_ends
 

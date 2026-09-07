@@ -91,6 +91,8 @@ class MazeGenerator:
 
         for (dx, dy) in FT_PATTERNS:
             x, y = (MID_X + dx, MID_Y + dy)
+            if board[y][x] is not FillStatus.wall:
+                raise Exception("Not empty")
             for ay in range(-1, 2):
                 for ax in range(-1, 2):
                     board[y + ay][x + ax] = FillStatus.wall_42
@@ -243,7 +245,10 @@ class MazeGenerator:
         ext_x, ext_y = self.config.exit
         self.board = [
             [FillStatus.wall for _ in range(WIDTH)] for _ in range(HEIGHT)]
+        self.board[ent_y][ent_x] = FillStatus.entry
+        self.board[ext_y * 2 + 1][ext_x * 2 + 1] = FillStatus.exit
         self._fill_42_pattern()
+        self.board[ext_y * 2 + 1][ext_x * 2 + 1] = FillStatus.wall
 
         self.board[ent_y][ent_x] = FillStatus.empty
         self._carve((ent_x, ent_y), None)

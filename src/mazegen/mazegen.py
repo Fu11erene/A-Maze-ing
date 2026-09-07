@@ -7,6 +7,15 @@ from ..types import Board, Coordinate, Direction, FillStatus
 
 
 RECURSION_LIMIT = 10000
+FT_PATTERNS = ((- 6, - 4), (+ 2, - 4),
+               (+ 4, - 4), (+ 6, - 4),
+               (- 6, - 2), (+ 6, - 2),
+               (- 6, - 0), (- 4, - 0),
+               (- 2, - 0), (+ 2, - 0),
+               (+ 4, - 0), (+ 6, - 0),
+               (- 2, + 2), (+ 2, + 2),
+               (- 2, + 4), (+ 2, + 4),
+               (+ 4, + 4), (+ 6, + 4))
 
 
 class MazeGenerator:
@@ -80,26 +89,8 @@ class MazeGenerator:
         elif not self.is_42_renderable():
             return
 
-        for (x, y) in (
-            (MID_X - 6, MID_Y - 4),
-            (MID_X + 2, MID_Y - 4),
-            (MID_X + 4, MID_Y - 4),
-            (MID_X + 6, MID_Y - 4),
-            (MID_X - 6, MID_Y - 2),
-            (MID_X + 6, MID_Y - 2),
-            (MID_X - 6, MID_Y - 0),
-            (MID_X - 4, MID_Y - 0),
-            (MID_X - 2, MID_Y - 0),
-            (MID_X + 2, MID_Y - 0),
-            (MID_X + 4, MID_Y - 0),
-            (MID_X + 6, MID_Y - 0),
-            (MID_X - 2, MID_Y + 2),
-            (MID_X + 2, MID_Y + 2),
-            (MID_X - 2, MID_Y + 4),
-            (MID_X + 2, MID_Y + 4),
-            (MID_X + 4, MID_Y + 4),
-            (MID_X + 6, MID_Y + 4),
-        ):
+        for (dx, dy) in FT_PATTERNS:
+            x, y = (MID_X + dx, MID_Y + dy)
             for ay in range(-1, 2):
                 for ax in range(-1, 2):
                     board[y + ay][x + ax] = FillStatus.wall_42
@@ -310,7 +301,7 @@ class MazeGenerator:
         self.path, self.path_direction = self._solve_with_bfs()
         self.show_path = False
 
-    def _select_wall_color(self, step) -> int:
+    def _select_wall_color(self, step: int) -> int:
         """
         stepだけ次の壁の色の添字を返す
         """

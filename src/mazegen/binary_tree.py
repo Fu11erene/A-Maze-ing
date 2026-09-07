@@ -55,7 +55,7 @@ class BinaryTreeMazeGenerator(MazeGenerator):
             possible_dir[Direction.up] = False
 
         possible_dirs = 0
-        for _, value in possible_dir.items():
+        for value in possible_dir.values():
             if value:
                 possible_dirs += 1
         if possible_dirs == 0:

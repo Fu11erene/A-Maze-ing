@@ -49,7 +49,7 @@ class MazeGenerator:
             for x in range(1, self._ARR_WIDTH, 2):
                 walls = (board[y - 1][x], board[y][x + 1],
                          board[y + 1][x], board[y][x - 1])
-                if walls.count(FillStatus.empty) == 1:
+                if walls.count(FillStatus.wall) + walls.count(FillStatus.wall_42) == 3:
                     dead_ends.append((x, y))
         return dead_ends
 
@@ -68,7 +68,7 @@ class MazeGenerator:
             ):
                 if (1 <= nx <= self._ARR_WIDTH - 2
                         and 1 <= ny <= self._ARR_HEIGHT - 2
-                        and board[wy][wx] is not FillStatus.empty):
+                        and board[wy][wx] is FillStatus.wall):
                     candidates.append((wx, wy))
             if candidates:
                 wx, wy = random.choice(candidates)

@@ -5,7 +5,7 @@ from typing import Optional
 from ..parser import Config
 from ..types import Board, Coordinate, Direction, FillStatus
 from ..errors import BoardUninitializedError, PatternConflictError
-
+from src.parser import arg_parse
 
 RECURSION_LIMIT = 10000
 FT_PATTERNS = ((- 6, - 4), (+ 2, - 4),
@@ -24,8 +24,8 @@ class MazeGenerator:
     迷路を生成するジェネレーター
     """
 
-    def __init__(self, config: Config) -> None:
-        self.config = config
+    def __init__(self) -> None:
+        self.config = arg_parse()
         self.board: Optional[Board] = None
         self.wall_colour_offset = 0
         # 壁の色は白、赤、緑、青、茶(42のterminal環境では)
@@ -228,14 +228,18 @@ class MazeGenerator:
         outstr = self._generate_outstr()
         ent_x, ent_y = self.config.entry
         ext_x, ext_y = self.config.exit
-        with open(self.config.output_file, mode="w") as f:
-            f.write(outstr + "\n")
-            f.write(f"{ent_x},{ent_y}")
-            f.write("\n")
-            f.write(f"{ext_x},{ext_y}")
-            f.write("\n")
-            f.write(self.path_direction)
-            f.write("\n")
+        try:
+            with open(self.config.output_file, mode="w") as f:
+                f.write(outstr + "\n")
+                f.write(f"{ent_x},{ent_y}")
+                f.write("\n")
+                f.write(f"{ext_x},{ext_y}")
+                f.write("\n")
+                f.write(self.path_direction)
+                f.write("\n")
+        except Exception as e:
+            print(e)
+            exit(1)
 
     def _generate_board(self) -> Board:
         """

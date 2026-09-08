@@ -62,6 +62,7 @@ INVALID_CASES: list[tuple[str, dict[str, Optional[str]]]] = [
     # --- WIDTH invalid values ---
     ("width_non_integer", dict(WIDTH="WIDTH=abc")),
     ("width_negative", dict(WIDTH="WIDTH=-1")),
+    ("width_too_small", dict(WIDTH="WIDTH=2")),
     ("width_too_large", dict(WIDTH="WIDTH=101")),
     ("width_float", dict(WIDTH="WIDTH=20.5")),
     ("width_empty_value", dict(WIDTH="WIDTH=")),
@@ -99,6 +100,7 @@ INVALID_CASES: list[tuple[str, dict[str, Optional[str]]]] = [
     # --- HEIGHT invalid values ---
     ("height_non_integer", dict(HEIGHT="HEIGHT=xyz")),
     ("height_negative", dict(HEIGHT="HEIGHT=-5")),
+    ("height_too_small", dict(HEIGHT="HEIGHT=2")),
     ("height_too_large", dict(HEIGHT="HEIGHT=999")),
     ("height_float", dict(HEIGHT="HEIGHT=15.0")),
     ("height_empty_value", dict(HEIGHT="HEIGHT=")),
@@ -412,7 +414,8 @@ INVALID_CASES: list[tuple[str, dict[str, Optional[str]]]] = [
     ("height_zero_leaves_no_room_for_entry", dict(HEIGHT="HEIGHT=0")),
 ]
 
-assert len(INVALID_CASES) == 313, f"expected 313 cases, got {len(INVALID_CASES)}"
+TESTS=315
+assert len(INVALID_CASES) == TESTS, f"expected {TESTS} cases, got {len(INVALID_CASES)}"
 
 
 @pytest.mark.parametrize(

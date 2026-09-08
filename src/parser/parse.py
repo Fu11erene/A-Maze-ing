@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 from random import randint
 from sys import exit
-from typing import Optional, Self
+from typing import Optional, Self, Union
 from pydantic import BaseModel, field_validator, model_validator, \
     Field, ValidationError
 from ..types import Coordinate
@@ -34,7 +34,10 @@ class Config(BaseModel):
     @field_validator('width', 'height', mode='before')
     @classmethod
     def parse_dimension(cls, value: str) -> int:
-        return cls._to_int(value)
+        result = cls._to_int(value)
+        if result < 3:
+            raise ParseError("Too small for generating mazes")
+        return result
 
     @field_validator('entry', 'exit', mode='before')
     @classmethod
@@ -92,12 +95,17 @@ def _format_validation_error(e: ValidationError) -> str:
     """
     ValidationErrorを捕捉したときのエラーメッセージのフォーマット
     """
-    err_loc = e.errors()[0]['loc'][0]
     err_msg = e.errors()[0]['msg'].replace("Value error, ", "")
+    err_loc_val: Union[int, str] = ""
+    err_loc = e.errors()[0]['loc']
+    if len(err_loc):
+        err_loc_val = err_loc[0]
 
-    if err_loc != "seed":
-        err_loc = str(err_loc).upper()
-    return f"{err_msg}: {err_loc}"
+        if err_loc_val != "seed":
+            err_loc_val = str(err_loc_val).upper()
+        return f"{err_msg}: {err_loc_val}"
+    else:
+        return err_msg
 
 
 def arg_parse() -> Config:

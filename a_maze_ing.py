@@ -1,14 +1,12 @@
 #!/bin/usr/env python3
 
-from src.parser import arg_parse
 from src.mazegen import MazeGenerator
 from src.visualizer import visualize
 
 
 def main() -> None:
-    config = arg_parse()
-    maze_gen = MazeGenerator(config=config)
     try:
+        maze_gen = MazeGenerator()
         visualize(maze_gen)
     except ValueError as e:
         print(f"{e.__class__.__name__}: {e}")

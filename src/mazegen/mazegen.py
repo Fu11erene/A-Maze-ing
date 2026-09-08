@@ -2,7 +2,6 @@ import random
 import sys
 from collections import deque
 from typing import Optional
-from ..parser import Config
 from ..types import Board, Coordinate, Direction, FillStatus
 from ..errors import BoardUninitializedError, PatternConflictError
 from src.parser import arg_parse

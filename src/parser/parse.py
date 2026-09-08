@@ -34,7 +34,10 @@ class Config(BaseModel):
     @field_validator('width', 'height', mode='before')
     @classmethod
     def parse_dimension(cls, value: str) -> int:
-        return cls._to_int(value)
+        result = cls._to_int(value)
+        if result < 3:
+            raise ParseError("Too small for generating mazes")
+        return result
 
     @field_validator('entry', 'exit', mode='before')
     @classmethod

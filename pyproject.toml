@@ -25,3 +25,4 @@ build-backend = "uv_build"
 
 [tool.uv.build-backend]
 module-name="mazegen"
+source-exclude = ["__pycache__"]

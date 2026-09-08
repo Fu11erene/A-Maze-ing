@@ -12,7 +12,10 @@ debug:
 	uv run python3 -m pdb a_maze_ing.py $(CONFIG)
 
 clean:
-	find . -type d \( -name ".mypy_cache" -o -name "__pycache__" \) -prune -exec rm -rf {} +
+	find . -type d \( -name ".mypy_cache" -o -name "__pycache__" -o -name ".pytest_cache" \) -prune -exec rm -rf {} +
+
+fclean: clean
+	rm -rf .venv/ maze.txt
 
 test:
 	uv run pytest

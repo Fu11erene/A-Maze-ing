@@ -18,4 +18,3 @@ if __name__ == "__main__":
     #     main()
     # except Exception as e:
     #     print(f"{e.__class__.__name__}: e")
-raise SystemExit(1)

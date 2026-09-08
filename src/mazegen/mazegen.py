@@ -36,7 +36,7 @@ class MazeGenerator:
         self.path: Optional[set[Coordinate]] = None
         self.show_path = False
         self.path_direction = ""
-        random.seed(config.seed)
+        random.seed(self.config.seed)
         if sys.getrecursionlimit() < RECURSION_LIMIT:
             sys.setrecursionlimit(RECURSION_LIMIT)
 

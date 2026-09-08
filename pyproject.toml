@@ -8,7 +8,7 @@ authors = [
     { name = "Kensuke Tomita", email = "ktomita@student.42tokyo.jp" },
 ]
 license = { file = "LICENSE.md" }
-requires-python = ">=3.14"
+requires-python = ">=3.10"
 dependencies = [
     "pydantic>=2.13.5",
 ]

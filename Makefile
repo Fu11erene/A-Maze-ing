@@ -14,6 +14,9 @@ debug:
 clean:
 	find . -type d \( -name ".mypy_cache" -o -name "__pycache__" \) -prune -exec rm -rf {} +
 
+test:
+	uv run pytest
+
 lint:
 	uv run flake8 .
 	uv run mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports \

@@ -9,4 +9,5 @@ en.subject.pdf
 maze.txt
 .DS_Store
 maze_analyzer.py
+.pytest_cache
 mlx-*-py3-none-any.whl

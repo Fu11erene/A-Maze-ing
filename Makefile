@@ -21,7 +21,7 @@ test:
 	uv run pytest
 
 build:
-	uv build --out-dir .
+	uv build --wheel --out-dir .
 
 lint:
 	uv run flake8 .

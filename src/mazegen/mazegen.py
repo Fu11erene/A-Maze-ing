@@ -6,7 +6,7 @@ from ..types import Board, Coordinate, Direction, FillStatus
 from ..errors import BoardUninitializedError, PatternConflictError
 from src.parser import arg_parse
 
-RECURSION_LIMIT = 10000
+RECURSION_LIMIT = 10100
 FT_PATTERNS = ((- 6, - 4), (+ 2, - 4),
                (+ 4, - 4), (+ 6, - 4),
                (- 6, - 2), (+ 6, - 2),
@@ -254,7 +254,7 @@ class MazeGenerator:
             [FillStatus.wall for _ in range(WIDTH)] for _ in range(HEIGHT)]
         self.board[ent_y][ent_x] = FillStatus.entry
         self.board[ext_y][ext_x] = FillStatus.exit
-        self._fill_42_pattern()
+        # self._fill_42_pattern()
         self.board[ext_y][ext_x] = FillStatus.wall
 
         self.board[ent_y][ent_x] = FillStatus.empty
@@ -294,7 +294,6 @@ class MazeGenerator:
         directions = [Direction.up, Direction.right,
                       Direction.down, Direction.left]
 
-        random.shuffle(directions)
         for dir in directions:
             new_pos = possible_dir[dir]
             if self._is_carveable(new_pos):

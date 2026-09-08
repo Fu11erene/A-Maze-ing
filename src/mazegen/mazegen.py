@@ -2,9 +2,9 @@ import random
 import sys
 from collections import deque
 from typing import Optional
-from ..types import Board, Coordinate, Direction, FillStatus
-from ..errors import BoardUninitializedError, PatternConflictError
-from ..parser import arg_parse
+from .types import Board, Coordinate, Direction, FillStatus
+from .errors import BoardUninitializedError, PatternConflictError
+from .parser import arg_parse
 
 RECURSION_LIMIT = 10100
 FT_PATTERNS = ((- 6, - 4), (+ 2, - 4),

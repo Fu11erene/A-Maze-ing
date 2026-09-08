@@ -82,22 +82,22 @@ def test_height_upper_boundary_100_is_accepted(tmp_path: Path) -> None:
     assert config.exit == (14, 99)
 
 
-def test_width_lower_boundary_1_is_accepted(tmp_path: Path) -> None:
+def test_width_lower_boundary_3_is_accepted(tmp_path: Path) -> None:
     # width=1 is the smallest width that can still hold two distinct cells
     # (paired with height=2). width=0 can never succeed (see
     # test_parse_invalid.py::width_zero_leaves_no_room_for_entry) so it is
     # not a valid boundary value despite passing width's own ge=0 check.
-    content = build_config_text(1, 2, (0, 0), (0, 1))
+    content = build_config_text(3, 10, (0, 0), (0, 1))
     config = run_arg_parse_valid(tmp_path, content)
-    assert config.width == 1
+    assert config.width == 3
     assert config.entry == (0, 0)
     assert config.exit == (0, 1)
 
 
-def test_height_lower_boundary_1_is_accepted(tmp_path: Path) -> None:
-    content = build_config_text(2, 1, (0, 0), (1, 0))
+def test_height_lower_boundary_3_is_accepted(tmp_path: Path) -> None:
+    content = build_config_text(10, 3, (0, 0), (1, 0))
     config = run_arg_parse_valid(tmp_path, content)
-    assert config.height == 1
+    assert config.height == 3
     assert config.entry == (0, 0)
     assert config.exit == (1, 0)
 

@@ -4,7 +4,7 @@ from collections import deque
 from typing import Optional
 from ..types import Board, Coordinate, Direction, FillStatus
 from ..errors import BoardUninitializedError, PatternConflictError
-from src.parser import arg_parse
+from ..parser import arg_parse
 
 RECURSION_LIMIT = 10100
 FT_PATTERNS = ((- 6, - 4), (+ 2, - 4),
@@ -139,7 +139,7 @@ class MazeGenerator:
             prev_x, prev_y = prev
             if (prev_x + 1, prev_y) == (cur_x, cur_y):
                 directions += "E"
-            elif (prev_x - 1, prev_y) == (cur_x, cur_y):
+            if (prev_x - 1, prev_y) == (cur_x, cur_y):
                 directions += "W"
             if (prev_x, prev_y + 1) == (cur_x, cur_y):
                 directions += "S"

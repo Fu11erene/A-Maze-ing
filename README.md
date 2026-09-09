@@ -365,3 +365,9 @@ maze_gen.generate_output()
 - 設定ファイルのバリデーションに `pydantic` を利用しました。
 - テストには `pytest` を利用しました。
 - お互いのコードレビューはGitHubのPull Requestなどの機能を活用して行いました。
+
+---
+
+## License
+
+本プロジェクトは [MIT License](LICENSE.md) のもとで公開されています。

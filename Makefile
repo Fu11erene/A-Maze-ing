@@ -15,7 +15,7 @@ clean:
 	find . -type d \( -name ".mypy_cache" -o -name "__pycache__" -o -name ".pytest_cache" \) -prune -exec rm -rf {} +
 
 fclean: clean
-	rm -rf .venv/ maze.txt
+	rm -rf .venv/ maze.txt *.whl
 
 test:
 	uv run pytest

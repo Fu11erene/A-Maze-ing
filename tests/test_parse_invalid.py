@@ -1,4 +1,4 @@
-"""Tests covering invalid config inputs for src.parser.parse.arg_parse.
+"""Tests covering invalid config inputs for mazegen.parser.parse.arg_parse.
 
 The parser must reject any malformed / out-of-spec configuration file and
 exit with status code 1 while printing a clear error message, instead of
@@ -12,7 +12,7 @@ from typing import Optional, Any
 
 import pytest
 
-from src.parser.parse import arg_parse
+from mazegen.parser.parse import arg_parse
 
 
 # A known-valid baseline config. Each test case starts from this and

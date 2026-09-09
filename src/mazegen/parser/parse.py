@@ -115,7 +115,7 @@ def arg_parse() -> Config:
     """
     try:
         parser = ArgumentParser()
-        parser.add_argument("filename", type=str, help="設定ファイル")
+        parser.add_argument("filename", help="設定ファイル")
         args = parser.parse_args()
         with open(args.filename) as f:
             entry_dict = _parse_config_lines(f.readlines())

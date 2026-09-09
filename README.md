@@ -1,4 +1,4 @@
-*This project has been created as part of the 42 curriculum by ktomita, tatsuzuk.*
+_This project has been created as part of the 42 curriculum by ktomita, tatsuzuk._
 
 # A-maze-ing
 
@@ -6,13 +6,13 @@
 
 ## Description
 
-### 概要
+### 課題の概要
 
-設定ファイルを受け取り迷路を生成し、ユーザーインタラクティブに操作できるプログラムをPythonで実装しました。また生成された迷路の情報を出力ファイルに書き込みました。
+設定ファイルを受け取り迷路を生成し、ユーザーインタラクティブなプログラムをPythonで実装しました。また生成された迷路の情報を出力ファイルに書き込みました。
 
 ### 設定ファイルのフォーマット
 
-| Key         | Description                                       | Example              |
+| キー        | 説明                                              | 例                   |
 | ----------- | ------------------------------------------------- | -------------------- |
 | WIDTH       | 迷路の横幅                                        | WIDTH=20             |
 | HEIGHT      | 迷路の縦幅                                        | HEIGHT=15            |
@@ -22,7 +22,7 @@
 | PERFECT     | 完全迷路か？                                      | PERFECT=True         |
 | seed        | 迷路のシード値（シード値によって迷路が決まる） 　 | seed=42              |
 
-`#`から始まる行はコメントとして扱われ無視されます
+`#`から始まる行はコメントとして扱われ無視されます。
 
 例:
 
@@ -123,16 +123,16 @@ uv run python3 a_maze_ing.py config.txt
 
 ### その他のMakeターゲット
 
-| ターゲット         | 内容                                              |
-| ------------------ | ------------------------------------------------- |
-| `make install`     | 依存関係のインストール                            |
-| `make run`         | 迷路の生成・表示の実行                            |
-| `make debug`       | `pdb` によるデバッグ実行                          |
-| `make test`        | `pytest` によるテスト実行                         |
-| `make lint`        | `flake8` と `mypy` によるチェック                 |
-| `make lint-strict` | `mypy --strict` を含む、より厳格なチェック        |
-| `make build`       | 再利用可能な `mazegen` パッケージ (`.whl`) のビルド |
-| `make clean`       | `__pycache__` などキャッシュの削除                |
+| ターゲット         | 内容                                                   |
+| ------------------ | ------------------------------------------------------ |
+| `make install`     | 依存関係のインストール                                 |
+| `make run`         | 迷路の生成・表示の実行                                 |
+| `make debug`       | `pdb` によるデバッグ実行                               |
+| `make test`        | `pytest` によるテスト実行                              |
+| `make lint`        | `flake8` と `mypy` によるチェック                      |
+| `make lint-strict` | `mypy --strict` を含む、より厳格なチェック             |
+| `make build`       | 再利用可能な `mazegen` パッケージ (`.whl`) のビルド    |
+| `make clean`       | `__pycache__` などキャッシュの削除                     |
 | `make fclean`      | `clean` に加え `.venv` や生成物 (`maze.txt` 等) も削除 |
 
 ---
@@ -164,6 +164,15 @@ uv run python3 a_maze_ing.py config.txt
 - [倒すって英語でなんて言うの？ - DMM英会話なんてuKnow?](https://eikaiwa.dmm.com/uknow/questions/59114/)
 - [穴掘り法を使って迷路を作ろう #Python - Qiita](https://qiita.com/naru_1017/items/e4d017433372a313aeb3)
 - [sazameki/maze-algorithms: 迷路生成の各種アルゴリズムのC++実装 (Win/Mac両対応)](https://github.com/sazameki/maze-algorithms)
+- [【アルゴリズム】BFS(幅優先探索) #初心者 - Qiita](https://qiita.com/Taira0222/items/b3cf5927235fa5121fd7)
+
+#### パッケージング・型チェック・Lint設定
+
+- [2022年版pyproject.tomlを使ったPythonパッケージの作り方 - Qiita](https://qiita.com/ieiringoo/items/4bef4fc9975803b08671)
+- [uv build と uv build --sdist --wheel は等価ではない](https://zenn.dev/himkt/articles/93787c26ddd1ef)
+- [Build backend | uv](https://docs.astral.sh/uv/concepts/build-backend/)
+- [Mypyのpyproject.toml設定オプション完全一覧（1.19.1） | Ruff & Mypy Practice Guide](https://zenn.dev/egg_glass/books/ruff-mypy-guide/viewer/mypy-pyproject-options)
+- [flake8の設定ファイルは .flake8 に記述する](https://thaim-til.hatenablog.jp/entry/2023/11/20/234509)
 
 ### AI Usage
 

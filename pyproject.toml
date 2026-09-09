@@ -3,6 +3,11 @@ name = "a-maze-ing"
 version = "0.1.0"
 description = "42 project"
 readme = "README.md"
+authors = [
+    { name = "Tatsuya Suzuki", email = "tatsuzuk@student.42tokyo.jp" },
+    { name = "Kensuke Tomita", email = "ktomita@student.42tokyo.jp" },
+]
+license = { file = "LICENSE.md" }
 requires-python = ">=3.10"
 dependencies = [
     "pydantic>=2.13.5",
@@ -17,7 +22,12 @@ dev = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+python_files = ["test_*.py"]
 pythonpath = ["."]
+
+[tool.mypy]
+python_version = "3.10"
+exclude = ["tests/*", ".venv/*"]
 
 [build-system]
 requires = ["uv_build>=0.12.10,<0.13.0"]

@@ -139,11 +139,11 @@ class MazeGenerator:
             prev_x, prev_y = prev
             if (prev_x + 1, prev_y) == (cur_x, cur_y):
                 directions += "E"
-            if (prev_x - 1, prev_y) == (cur_x, cur_y):
+            elif (prev_x - 1, prev_y) == (cur_x, cur_y):
                 directions += "W"
-            if (prev_x, prev_y + 1) == (cur_x, cur_y):
+            elif (prev_x, prev_y + 1) == (cur_x, cur_y):
                 directions += "S"
-            if (prev_x, prev_y - 1) == (cur_x, cur_y):
+            elif (prev_x, prev_y - 1) == (cur_x, cur_y):
                 directions += "N"
             cur = (prev_x, prev_y)
         return directions

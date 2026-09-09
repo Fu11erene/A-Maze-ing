@@ -4,7 +4,7 @@ from collections import deque
 from typing import Optional
 from .types import Board, Coordinate, Direction, FillStatus
 from .errors import BoardUninitializedError, PatternConflictError
-from .parser import arg_parse
+from .parser import Config
 
 RECURSION_LIMIT = 10100
 FT_PATTERNS = ((- 6, - 4), (+ 2, - 4),
@@ -23,8 +23,8 @@ class MazeGenerator:
     迷路を生成するジェネレーター
     """
 
-    def __init__(self) -> None:
-        self.config = arg_parse()
+    def __init__(self, config: Config) -> None:
+        self.config = config
         self.board: Optional[Board] = None
         self.wall_colour_offset = 0
         # 壁の色は白、赤、緑、青、茶(42のterminal環境では)

@@ -1,6 +1,6 @@
 #!/bin/usr/env python3
 
-from src.mazegen import MazeGenerator, arg_parse, visualize
+from mazegen import MazeGenerator, arg_parse, visualize
 
 
 def main() -> None:

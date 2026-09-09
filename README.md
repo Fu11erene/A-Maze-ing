@@ -188,7 +188,6 @@ uv run python3 a_maze_ing.py config.txt
 .
 ├── a_maze_ing.py        # エントリーポイント (python3 a_maze_ing.py config.txt)
 ├── config.txt           # デフォルトの設定ファイル
-├── maze_analyzer.py     # 課題側から提供された、出力ファイルの検証スクリプト
 ├── Makefile
 ├── pyproject.toml
 ├── LICENSE.md

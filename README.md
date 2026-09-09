@@ -307,6 +307,7 @@ maze_gen.generate_output()
 #### tatsuzuk
 
 - Configのパースとエラーハンドリング、テスト
+- 生成された迷路を解くアルゴリズムの作成
 - 生成された迷路のファイルへの出力
 - ターミナルへの出力の整形
 - Makefileやpyproject.tomlなどの環境構築

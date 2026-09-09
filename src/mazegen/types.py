@@ -23,11 +23,11 @@ class Direction(Enum):
     left = 8
 
 
-type Board = list[list[FillStatus]]
+Board = list[list[FillStatus]]
 """
 迷路の盤面を定義する型
 """
-type Coordinate = tuple[int, int]
+Coordinate = tuple[int, int]
 """
 座標を定義する型
 [0] - x座標

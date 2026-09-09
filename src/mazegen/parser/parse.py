@@ -1,7 +1,8 @@
 from argparse import ArgumentParser
 from random import randint
 from sys import exit
-from typing import Optional, Self, Union
+from typing_extensions import Self
+from typing import Optional, Union
 from pydantic import BaseModel, field_validator, model_validator, \
     Field, ValidationError
 from ..types import Coordinate

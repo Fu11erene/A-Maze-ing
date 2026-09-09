@@ -20,6 +20,9 @@ fclean: clean
 test:
 	uv run pytest
 
+build:
+	uv build --wheel --out-dir .
+
 lint:
 	uv run flake8 .
 	uv run mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports \

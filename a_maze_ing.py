@@ -1,7 +1,6 @@
 #!/bin/usr/env python3
 
-from src.mazegen import MazeGenerator
-from src.visualizer import visualize
+from mazegen import MazeGenerator, visualize
 
 
 def main() -> None:
@@ -18,4 +17,3 @@ if __name__ == "__main__":
     #     main()
     # except Exception as e:
     #     print(f"{e.__class__.__name__}: e")
-raise SystemExit(1)

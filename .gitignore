@@ -11,3 +11,4 @@ maze.txt
 maze_analyzer.py
 .pytest_cache
 *.whl
+tmp*

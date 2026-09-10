@@ -1,14 +1,24 @@
+# Python
 .venv
-.python-version
-mise.toml
 .mypy_cache
+.python-version
+.pytest_cache
 __pycache__
-en.subject.pdf
+*.whl
+
+# Mac OS
+mise.toml
+.DS_Store
+
+# Temporary Files
+dist/
+maze.txt
+
+# Output files
+tmp*
 *config*.txt
 !config.txt
-maze.txt
-.DS_Store
+
+# 42 assets
 maze_analyzer.py
-.pytest_cache
-*.whl
-tmp*
+en.subject.pdf

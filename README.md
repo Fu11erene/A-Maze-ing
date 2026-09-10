@@ -172,7 +172,7 @@ uv run python3 a_maze_ing.py config.txt
 - [Python 3.14.7 Documentation](https://docs.python.org/3/index.html)
 - [Pythonのメモリ管理: ガベージコレクション、弱参照、循環参照の問題と解決策 #Python - Qiita](https://qiita.com/Tadataka_Takahashi/items/a5d9654bba38d4eb3686)
 - [【Python】抽象クラス・基底クラス・抽象基底クラスの違いをわかりやすく解説！ - IT Information](https://it-infomation.com/python-base-class-abstract-class-abstract-base-class/)
-- [printで色をつける方法 | Python学習講座](https://www.python.ambitious-engineer.com/archives/3721)
+- [printで色をつける方法 | Python学習講座](https://www.python.ambitious-engineer.修正してくださいcom/archives/3721)
 
 #### 迷路生成アルゴリズム
 
@@ -224,6 +224,7 @@ uv run python3 a_maze_ing.py config.txt
 ├── Makefile
 ├── pyproject.toml
 ├── LICENSE.md
+├── a_maze_ing-0.1.0-py3-none-any.whl  # ビルド済みの mazegen パッケージ
 ├── src/mazegen/         # 再利用可能な迷路生成パッケージ本体
 │   ├── mazegen.py       # MazeGenerator クラス（生成・探索・表示）
 │   ├── types.py         # Board / Coordinate / FillStatus などの型定義

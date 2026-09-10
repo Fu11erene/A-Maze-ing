@@ -115,9 +115,10 @@ def arg_parse() -> Config:
     """
     try:
         parser = ArgumentParser()
-        parser.add_argument("filename", type=open, help="設定ファイル")
+        parser.add_argument("filename", help="設定ファイル")
         args = parser.parse_args()
-        entry_dict = _parse_config_lines(args.filename.readlines())
+        with open(args.filename) as f:
+            entry_dict = _parse_config_lines(f.readlines())
         return Config.model_validate(entry_dict)
     except ValidationError as e:
         print(_format_validation_error(e))

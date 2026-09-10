@@ -1,5 +1,5 @@
 """Tests covering the valid-input equivalence classes for
-src.parser.parse.arg_parse.
+mazegen.parser.parse.arg_parse.
 
 tests/test_parse_invalid.py exhaustively checks that malformed input is
 rejected, but never checks that a well-formed config file is actually
@@ -16,7 +16,7 @@ from typing import Optional
 
 import pytest
 
-from src.parser.parse import Config, arg_parse
+from mazegen.parser.parse import Config, arg_parse
 
 
 def build_config_text(

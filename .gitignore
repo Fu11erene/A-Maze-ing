@@ -4,7 +4,6 @@
 .python-version
 .pytest_cache
 __pycache__
-*.whl
 
 # Mac OS
 mise.toml

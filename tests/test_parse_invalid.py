@@ -433,3 +433,16 @@ def test_missing_config_file(tmp_path: Path) -> None:
     sys.argv = ["a_maze_ing.py", str(missing_path)]
     with pytest.raises(SystemExit):
         arg_parse()
+
+
+def test_directory_as_config_file_exits_gracefully(tmp_path: Path) -> None:
+    # Passing a directory raises IsADirectoryError, a subclass of OSError.
+    # arg_parse catches OSError around open() (which also covers
+    # FileNotFoundError and PermissionError). Per subject IV.2 ("Your
+    # program must handle all errors gracefully ... It must never crash
+    # unexpectedly"), this should exit(1) like any other bad input instead
+    # of propagating an uncaught exception.
+    sys.argv = ["a_maze_ing.py", str(tmp_path)]
+    with pytest.raises(SystemExit) as exc_info:
+        arg_parse()
+    assert exc_info.value.code == 1

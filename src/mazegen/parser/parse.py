@@ -123,6 +123,6 @@ def arg_parse() -> Config:
     except ValidationError as e:
         print(_format_validation_error(e))
         exit(1)
-    except (ParseError, FileNotFoundError, PermissionError) as e:
+    except (ParseError, OSError) as e:
         print(e)
         exit(1)

@@ -12,6 +12,7 @@ mise.toml
 # Temporary Files
 dist/
 maze.txt
+tests/
 
 # Output files
 tmp*

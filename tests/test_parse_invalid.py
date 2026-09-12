@@ -102,6 +102,7 @@ INVALID_CASES: list[tuple[str, dict[str, Optional[str]]]] = [
     ("height_negative", dict(HEIGHT="HEIGHT=-5")),
     ("height_too_small", dict(HEIGHT="HEIGHT=2")),
     ("height_too_large", dict(HEIGHT="HEIGHT=999")),
+    ("height_too_large_101", dict(HEIGHT="HEIGHT=101")),
     ("height_float", dict(HEIGHT="HEIGHT=15.0")),
     ("height_empty_value", dict(HEIGHT="HEIGHT=")),
     ("height_missing_value_no_equals", dict(HEIGHT="HEIGHT")),
@@ -150,6 +151,7 @@ INVALID_CASES: list[tuple[str, dict[str, Optional[str]]]] = [
     ("entry_scientific_notation", dict(ENTRY="ENTRY=1e1,0")),
     ("entry_empty_value", dict(ENTRY="ENTRY=")),
     ("entry_trailing_comma", dict(ENTRY="ENTRY=0,")),
+    ("entry_equal_to_exit", dict(ENTRY="ENTRY=19,14")),
 
     # --- ENTRY type-related edge cases (x coordinate) ---
     ("entry_x_scientific_notation_alt", dict(ENTRY="ENTRY=2e1,5")),
@@ -177,6 +179,33 @@ INVALID_CASES: list[tuple[str, dict[str, Optional[str]]]] = [
     ("entry_x_multi_digit_float", dict(ENTRY="ENTRY=12.34,5")),
     ("entry_x_double_dot_float", dict(ENTRY="ENTRY=3..3,5")),
     ("entry_x_hex_value", dict(ENTRY="ENTRY=0x14,5")),
+
+    # --- ENTRY type-related edge cases (y coordinate) ---
+    ("entry_y_scientific_notation_alt", dict(ENTRY="ENTRY=5,2e1")),
+    ("entry_y_positive_float_with_plus", dict(ENTRY="ENTRY=5,+5.5")),
+    ("entry_y_double_negative_sign", dict(ENTRY="ENTRY=5,--3")),
+    ("entry_y_trailing_minus", dict(ENTRY="ENTRY=5,3-")),
+    ("entry_y_trailing_plus", dict(ENTRY="ENTRY=5,3+")),
+    ("entry_y_internal_space", dict(ENTRY="ENTRY=5,3 3")),
+    ("entry_y_internal_tab", dict(ENTRY="ENTRY=5,3\t3")),
+    ("entry_y_underscore_separator_over_limit", dict(ENTRY="ENTRY=5,1_000")),
+    ("entry_y_binary_literal_string", dict(ENTRY="ENTRY=5,0b101")),
+    ("entry_y_octal_literal_string", dict(ENTRY="ENTRY=5,0o17")),
+    ("entry_y_long_suffix", dict(ENTRY="ENTRY=5,5L")),
+    ("entry_y_boolean_word_true", dict(ENTRY="ENTRY=5,True")),
+    ("entry_y_boolean_word_false", dict(ENTRY="ENTRY=5,False")),
+    ("entry_y_none_word", dict(ENTRY="ENTRY=5,None")),
+    ("entry_y_null_word", dict(ENTRY="ENTRY=5,null")),
+    ("entry_y_nan_word", dict(ENTRY="ENTRY=5,NaN")),
+    ("entry_y_infinity_word", dict(ENTRY="ENTRY=5,Infinity")),
+    ("entry_y_negative_infinity", dict(ENTRY="ENTRY=5,-inf")),
+    ("entry_y_arithmetic_expression_div", dict(ENTRY="ENTRY=5,6/2")),
+    ("entry_y_arithmetic_expression_mul", dict(ENTRY="ENTRY=5,6*1")),
+    ("entry_y_huge_number", dict(ENTRY="ENTRY=5,999999999999999999999999")),
+    ("entry_y_very_negative_number", dict(ENTRY="ENTRY=5,-999999999999999999999999")),
+    ("entry_y_multi_digit_float", dict(ENTRY="ENTRY=5,12.34")),
+    ("entry_y_double_dot_float", dict(ENTRY="ENTRY=5,3..3")),
+    ("entry_y_hex_value", dict(ENTRY="ENTRY=5,0x14")),
 
     # --- EXIT invalid values ---
     ("exit_missing_comma", dict(EXIT="EXIT=1914")),
@@ -220,6 +249,33 @@ INVALID_CASES: list[tuple[str, dict[str, Optional[str]]]] = [
     ("exit_x_multi_digit_float", dict(EXIT="EXIT=12.34,5")),
     ("exit_x_double_dot_float", dict(EXIT="EXIT=3..3,5")),
     ("exit_x_hex_value", dict(EXIT="EXIT=0x14,5")),
+
+    # --- EXIT type-related edge cases (y coordinate) ---
+    ("exit_y_scientific_notation_alt", dict(EXIT="EXIT=5,2e1")),
+    ("exit_y_positive_float_with_plus", dict(EXIT="EXIT=5,+5.5")),
+    ("exit_y_double_negative_sign", dict(EXIT="EXIT=5,--3")),
+    ("exit_y_trailing_minus", dict(EXIT="EXIT=5,3-")),
+    ("exit_y_trailing_plus", dict(EXIT="EXIT=5,3+")),
+    ("exit_y_internal_space", dict(EXIT="EXIT=5,3 3")),
+    ("exit_y_internal_tab", dict(EXIT="EXIT=5,3\t3")),
+    ("exit_y_underscore_separator_over_limit", dict(EXIT="EXIT=5,1_000")),
+    ("exit_y_binary_literal_string", dict(EXIT="EXIT=5,0b101")),
+    ("exit_y_octal_literal_string", dict(EXIT="EXIT=5,0o17")),
+    ("exit_y_long_suffix", dict(EXIT="EXIT=5,5L")),
+    ("exit_y_boolean_word_true", dict(EXIT="EXIT=5,True")),
+    ("exit_y_boolean_word_false", dict(EXIT="EXIT=5,False")),
+    ("exit_y_none_word", dict(EXIT="EXIT=5,None")),
+    ("exit_y_null_word", dict(EXIT="EXIT=5,null")),
+    ("exit_y_nan_word", dict(EXIT="EXIT=5,NaN")),
+    ("exit_y_infinity_word", dict(EXIT="EXIT=5,Infinity")),
+    ("exit_y_negative_infinity", dict(EXIT="EXIT=5,-inf")),
+    ("exit_y_arithmetic_expression_div", dict(EXIT="EXIT=5,6/2")),
+    ("exit_y_arithmetic_expression_mul", dict(EXIT="EXIT=5,6*1")),
+    ("exit_y_huge_number", dict(EXIT="EXIT=5,999999999999999999999999")),
+    ("exit_y_very_negative_number", dict(EXIT="EXIT=5,-999999999999999999999999")),
+    ("exit_y_multi_digit_float", dict(EXIT="EXIT=5,12.34")),
+    ("exit_y_double_dot_float", dict(EXIT="EXIT=5,3..3")),
+    ("exit_y_hex_value", dict(EXIT="EXIT=5,0x14")),
 
     # --- OUTPUT_FILE structural edge cases ---
     # output_file is a plain `str` with no value-level validation, so any
@@ -393,7 +449,16 @@ INVALID_CASES: list[tuple[str, dict[str, Optional[str]]]] = [
 
     # --- Structural / syntax errors ---
     ("duplicate_width_key", dict(WIDTH="WIDTH=20\nWIDTH=30")),
+    ("duplicate_height_key", dict(HEIGHT="HEIGHT=15\nHEIGHT=30")),
     ("duplicate_entry_key", dict(ENTRY="ENTRY=0,0\nENTRY=1,1")),
+    ("duplicate_exit_key", dict(EXIT="EXIT=19,14\nEXIT=10,10")),
+    ("duplicate_perfect_key", dict(PERFECT="PERFECT=True\nPERFECT=False")),
+    ("duplicate_seed_key", dict(SEED="seed=1\nseed=2")),
+
+    # --- seed key casing: CONFIG_OPTIONS registers "seed" lowercase only,
+    # unlike every other key, so any other casing is an unknown key. ---
+    ("seed_uppercase_key", dict(SEED="SEED=5")),
+    ("seed_titlecase_key", dict(SEED="Seed=5")),
     ("unknown_key", dict(WIDTH="WIDTH=20\nFOOBAR=123")),
     ("lowercase_key_not_recognized", dict(WIDTH="width=20")),
     ("line_without_equals_sign", dict(WIDTH="WIDTHONLY")),
@@ -414,7 +479,7 @@ INVALID_CASES: list[tuple[str, dict[str, Optional[str]]]] = [
     ("height_zero_leaves_no_room_for_entry", dict(HEIGHT="HEIGHT=0")),
 ]
 
-TESTS=315
+TESTS=373
 assert len(INVALID_CASES) == TESTS, f"expected {TESTS} cases, got {len(INVALID_CASES)}"
 
 
@@ -440,3 +505,74 @@ def test_directory_as_config_file_exits_gracefully(tmp_path: Path) -> None:
     with pytest.raises(SystemExit) as exc_info:
         arg_parse()
     assert exc_info.value.code == 1
+
+
+def test_empty_config_file_is_rejected(tmp_path: Path) -> None:
+    exc_info = run_arg_parse(tmp_path, "")
+    assert exc_info.value.code == 1
+
+
+def test_config_file_with_only_comments_and_blank_lines_is_rejected(
+    tmp_path: Path,
+) -> None:
+    content = "# just a comment\n\n\n# another comment\n"
+    exc_info = run_arg_parse(tmp_path, content)
+    assert exc_info.value.code == 1
+
+
+# --- Error message content ---
+#
+# The other invalid-input tests only assert exit code 1; the module
+# docstring also promises "printing a clear error message". These tests
+# cover the three branches of parse.py's _format_validation_error:
+#   - field-level pydantic error (loc is non-empty, e.g. ("width",))
+#     -> "{msg}: {LOC}" with the field name upper-cased
+#   - "seed" is the one field kept lower-case in that message
+#   - model_validator(mode="after") errors have an empty loc (the error is
+#     raised on the model, not a field) -> the bare message with no suffix
+
+
+def test_field_level_error_message_includes_uppercased_field_name(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str],
+) -> None:
+    exc_info = run_arg_parse(tmp_path, build_config(WIDTH="WIDTH=abc"))
+    assert exc_info.value.code == 1
+    out = capsys.readouterr().out
+    assert out.strip().endswith(": WIDTH")
+
+
+def test_seed_error_message_keeps_seed_lowercase(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str],
+) -> None:
+    exc_info = run_arg_parse(tmp_path, build_config(SEED="seed=abc"))
+    assert exc_info.value.code == 1
+    out = capsys.readouterr().out
+    assert out.strip().endswith(": seed")
+
+
+def test_model_validator_error_message_has_no_field_suffix(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str],
+) -> None:
+    # ENTRY out of bounds is rejected by validate_entry_and_exit, a
+    # model_validator(mode="after"): its ValidationError has an empty loc,
+    # so _format_validation_error must not append a ": FIELD" suffix.
+    exc_info = run_arg_parse(tmp_path, build_config(ENTRY="ENTRY=25,0"))
+    assert exc_info.value.code == 1
+    out = capsys.readouterr().out
+    assert out.strip() == "Invalid 'ENTRY'"
+
+
+def test_structural_parse_error_message_has_no_field_suffix(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str],
+) -> None:
+    # A raw ParseError raised outside pydantic (here: an unrecognized key)
+    # is printed as-is by the bare `except (ParseError, OSError)` branch,
+    # with no ": FIELD" suffix formatting applied.
+    exc_info = run_arg_parse(
+        tmp_path, build_config(WIDTH="WIDTH=20\nFOOBAR=123"),
+    )
+    assert exc_info.value.code == 1
+    out = capsys.readouterr().out
+    assert out.strip() == "Invalid Key: FOOBAR"
+
+

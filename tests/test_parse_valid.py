@@ -66,6 +66,12 @@ def test_perfect_false_is_accepted(tmp_path: Path) -> None:
     assert config.perfect is False
 
 
+def test_perfect_omitted_defaults_to_false(tmp_path: Path) -> None:
+    content = build_config_text(20, 15, (0, 0), (19, 14), perfect=None)
+    config = run_arg_parse_valid(tmp_path, content)
+    assert config.perfect is False
+
+
 def test_width_upper_boundary_100_is_accepted(tmp_path: Path) -> None:
     # width=100 is the exact ge=0/le=100 upper boundary, and entry/exit's
     # x=99 (=width-1) is the exact upper boundary of the coordinate check.
@@ -124,6 +130,30 @@ def test_seed_omitted_falls_back_to_default(tmp_path: Path) -> None:
     assert isinstance(config.seed, int)
 
 
+def test_seed_negative_is_accepted(tmp_path: Path) -> None:
+    # seed is `Optional[int]` with no explicit constraints, so a negative
+    # value is not rejected by validation.
+    content = build_config_text(20, 15, (0, 0), (19, 14), seed="-5")
+    config = run_arg_parse_valid(tmp_path, content)
+    assert config.seed == -5
+
+
+def test_typical_mid_range_dimensions_are_accepted(tmp_path: Path) -> None:
+    content = build_config_text(50, 50, (0, 0), (49, 49))
+    config = run_arg_parse_valid(tmp_path, content)
+    assert config.width == 50
+    assert config.height == 50
+
+
+def test_entry_and_exit_at_ordinary_non_boundary_coordinates(
+    tmp_path: Path,
+) -> None:
+    content = build_config_text(20, 15, (5, 7), (12, 3))
+    config = run_arg_parse_valid(tmp_path, content)
+    assert config.entry == (5, 7)
+    assert config.exit == (12, 3)
+
+
 OUTPUT_FILE_VALID_VALUES = [
     ("simple_filename", "maze.txt"),
     ("empty_string", ""),
@@ -145,3 +175,42 @@ def test_output_file_accepts_any_string(tmp_path: Path, value: str) -> None:
     content = build_config_text(20, 15, (0, 0), (19, 14), output_file=value)
     config = run_arg_parse_valid(tmp_path, content)
     assert config.output_file == value
+
+
+# --- Non-obvious inputs int() accepts ---
+#
+# _to_int only special-cases "." (to reject floats); everything else is
+# handed straight to int(), which is far more permissive than the invalid
+# test suite's cases assume. These document real accepted inputs rather
+# than testing symmetry with the invalid side.
+
+
+def test_width_with_underscore_digit_separator_is_accepted(
+    tmp_path: Path,
+) -> None:
+    # int("1_0") == 10: Python's underscore digit separator is accepted
+    # syntax, not rejected as garbage.
+    content = build_config_text(10, 15, (0, 0), (9, 14))
+    content = content.replace("WIDTH=10", "WIDTH=1_0")
+    config = run_arg_parse_valid(tmp_path, content)
+    assert config.width == 10
+
+
+def test_entry_coordinate_with_leading_plus_sign_is_accepted(
+    tmp_path: Path,
+) -> None:
+    # int("+5") == 5: a leading "+" is valid integer syntax.
+    content = build_config_text(20, 15, (5, 7), (19, 14))
+    content = content.replace("ENTRY=5,7", "ENTRY=+5,7")
+    config = run_arg_parse_valid(tmp_path, content)
+    assert config.entry == (5, 7)
+
+
+def test_entry_coordinate_with_fullwidth_digits_is_accepted(
+    tmp_path: Path,
+) -> None:
+    # int() accepts Unicode decimal digits, not just ASCII 0-9.
+    content = build_config_text(20, 15, (0, 0), (19, 14))
+    content = content.replace("ENTRY=0,0", "ENTRY=０,０")
+    config = run_arg_parse_valid(tmp_path, content)
+    assert config.entry == (0, 0)

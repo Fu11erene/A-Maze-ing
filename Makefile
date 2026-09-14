@@ -19,9 +19,6 @@ clean:
 fclean: clean
 	rm -rf .venv/ maze.txt *.whl
 
-test:
-	uv run pytest
-
 build:
 	uv build --wheel --out-dir .
 

@@ -1,6 +1,6 @@
 CONFIG?=config.txt
 
-.PHONY: install run debug clean fclean test lint lint-strict build
+.PHONY: install run debug clean fclean lint lint-strict build
 
 install:
 	uv sync
